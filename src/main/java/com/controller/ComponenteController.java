@@ -1,7 +1,7 @@
-package com.instituto.api.controller;
+package com.controller;
 
-import com.instituto.api.entity.Componente;
-import com.instituto.api.repository.ComponenteRepository;
+import com.entity.Componente;
+import com.repository.ComponenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*; // Importante para @PostMapping y @RequestBody

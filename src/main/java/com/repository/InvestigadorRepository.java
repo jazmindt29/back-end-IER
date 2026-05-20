@@ -1,7 +1,7 @@
-package com.instituto.api.repository;
+package com.repository;
 
-import com.instituto.api.entity.AreaInvestigacion;
-import com.instituto.api.entity.Investigador;
+import com.entity.AreaInvestigacion;
+import com.entity.Investigador;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

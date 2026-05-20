@@ -1,4 +1,4 @@
-package com.instituto.api;
+package com. ;
 
 import org.springframework.aot.generate.Generated;
 import org.springframework.beans.factory.aot.AutowiredFieldValueResolver;

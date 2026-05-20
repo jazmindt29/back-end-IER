@@ -1,5 +1,5 @@
 {
-  "name": "com.instituto.api.repository.AuditoriaRepository",
+  "name": "com .repository.AuditoriaRepository",
   "module": "JPA",
   "type": "IMPERATIVE",
   "methods": [

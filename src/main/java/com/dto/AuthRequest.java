@@ -1,4 +1,4 @@
-package com.instituto.api.dto;
+package com.dto;
 
 // AuthRequest.java
 public class AuthRequest {

@@ -1,6 +1,6 @@
-package com.instituto.api.repository;
+packagecom.repository;
 
-import com.instituto.api.entity.Usuario;
+importcom.entity.Usuario;
 import jakarta.persistence.EntityManager;
 import java.lang.Class;
 import java.lang.Long;
@@ -40,7 +40,7 @@ public class UsuarioRepository__BeanDefinitions {
     RootBeanDefinition beanDefinition = new RootBeanDefinition(JpaRepositoryFactoryBean.class);
     beanDefinition.setTargetType(ResolvableType.forClassWithGenerics(JpaRepositoryFactoryBean.class, UsuarioRepository.class, Usuario.class, Long.class));
     beanDefinition.setLazyInit(false);
-    beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, "com.instituto.api.repository.UsuarioRepository");
+    beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, "com .repository.UsuarioRepository");
     beanDefinition.getPropertyValues().addPropertyValue("queryLookupStrategyKey", QueryLookupStrategy.Key.CREATE_IF_NOT_FOUND);
     beanDefinition.getPropertyValues().addPropertyValue("lazyInit", false);
     beanDefinition.getPropertyValues().addPropertyValue("namedQueries", new RuntimeBeanReference("jpa.named-queries#8"));
@@ -55,7 +55,7 @@ public class UsuarioRepository__BeanDefinitions {
       public RepositoryComposition.RepositoryFragments getRepositoryFragments(
           BeanFactory beanFactory, RepositoryFactoryBeanSupport.FragmentCreationContext context) {
         EntityManager entityManager = beanFactory.getBean(EntityManager.class);
-        return RepositoryComposition.RepositoryFragments.just(new com.instituto.api.repository.UsuarioRepositoryImpl__AotRepository(entityManager, context));
+        return RepositoryComposition.RepositoryFragments.just(newcom.repository.UsuarioRepositoryImpl__AotRepository(entityManager, context));
       }
     });
     InstanceSupplier<JpaRepositoryFactoryBean> instanceSupplier = getUsuarioRepositoryInstanceSupplier();

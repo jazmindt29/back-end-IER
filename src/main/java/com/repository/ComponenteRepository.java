@@ -1,6 +1,6 @@
-package com.instituto.api.repository;
+package com.repository;
 
-import com.instituto.api.entity.Componente;
+import com.entity.Componente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

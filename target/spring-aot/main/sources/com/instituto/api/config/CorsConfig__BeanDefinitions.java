@@ -1,4 +1,4 @@
-package com.instituto.api.config;
+packagecom.config;
 
 import org.springframework.aot.generate.Generated;
 import org.springframework.beans.factory.config.BeanDefinition;

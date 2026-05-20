@@ -1,6 +1,6 @@
-package com.instituto.api;
+package com;
 
-import com.instituto.api.repository.RolRepository;
+import com.repository.RolRepository;
 import org.springframework.beans.factory.annotation.Autowired; // El import que faltaba
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

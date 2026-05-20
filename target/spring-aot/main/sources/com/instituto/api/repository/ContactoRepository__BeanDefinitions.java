@@ -1,6 +1,6 @@
-package com.instituto.api.repository;
+packagecom.repository;
 
-import com.instituto.api.entity.Contacto;
+importcom.entity.Contacto;
 import jakarta.persistence.EntityManager;
 import java.lang.Class;
 import java.lang.Long;
@@ -40,7 +40,7 @@ public class ContactoRepository__BeanDefinitions {
     RootBeanDefinition beanDefinition = new RootBeanDefinition(JpaRepositoryFactoryBean.class);
     beanDefinition.setTargetType(ResolvableType.forClassWithGenerics(JpaRepositoryFactoryBean.class, ContactoRepository.class, Contacto.class, Long.class));
     beanDefinition.setLazyInit(false);
-    beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, "com.instituto.api.repository.ContactoRepository");
+    beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, "com .repository.ContactoRepository");
     beanDefinition.getPropertyValues().addPropertyValue("queryLookupStrategyKey", QueryLookupStrategy.Key.CREATE_IF_NOT_FOUND);
     beanDefinition.getPropertyValues().addPropertyValue("lazyInit", false);
     beanDefinition.getPropertyValues().addPropertyValue("namedQueries", new RuntimeBeanReference("jpa.named-queries#0"));
@@ -55,7 +55,7 @@ public class ContactoRepository__BeanDefinitions {
       public RepositoryComposition.RepositoryFragments getRepositoryFragments(
           BeanFactory beanFactory, RepositoryFactoryBeanSupport.FragmentCreationContext context) {
         EntityManager entityManager = beanFactory.getBean(EntityManager.class);
-        return RepositoryComposition.RepositoryFragments.just(new com.instituto.api.repository.ContactoRepositoryImpl__AotRepository(entityManager, context));
+        return RepositoryComposition.RepositoryFragments.just(newcom.repository.ContactoRepositoryImpl__AotRepository(entityManager, context));
       }
     });
     InstanceSupplier<JpaRepositoryFactoryBean> instanceSupplier = getContactoRepositoryInstanceSupplier();

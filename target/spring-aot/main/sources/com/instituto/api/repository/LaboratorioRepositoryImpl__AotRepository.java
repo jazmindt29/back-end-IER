@@ -1,6 +1,6 @@
-package com.instituto.api.repository;
+packagecom.repository;
 
-import com.instituto.api.entity.Laboratorio;
+importcom.entity.Laboratorio;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.lang.String;

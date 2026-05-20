@@ -1,7 +1,7 @@
 # Read Me First
 The following was discovered as part of building this project:
 
-* The original package name 'com.instituto .api' is invalid and this project uses 'com.instituto.api' instead.
+* The original package name 'com.instituto .api' is invalid and this project uses 'com. ' instead.
 
 # Getting Started
 

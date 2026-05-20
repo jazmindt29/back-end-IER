@@ -1,18 +1,18 @@
 {
-  "name": "com.instituto.api.repository.InvestigadorRepository",
+  "name": "com .repository.InvestigadorRepository",
   "module": "JPA",
   "type": "IMPERATIVE",
   "methods": [
     {
       "name": "findByArea",
-      "signature": "public abstract java.util.List<com.instituto.api.entity.Investigador> com.instituto.api.repository.InvestigadorRepository.findByArea(com.instituto.api.entity.AreaInvestigacion)",
+      "signature": "public abstract java.util.List<com .entity.Investigador>com.repository.InvestigadorRepository.findByArea(com .entity.AreaInvestigacion)",
       "query": {
         "query": "SELECT i FROM Investigador i WHERE i.area = :area"
       }
     },
     {
       "name": "findByEspecialidad",
-      "signature": "public abstract java.util.List<com.instituto.api.entity.Investigador> com.instituto.api.repository.InvestigadorRepository.findByEspecialidad(java.lang.String)",
+      "signature": "public abstract java.util.List<com .entity.Investigador>com.repository.InvestigadorRepository.findByEspecialidad(java.lang.String)",
       "query": {
         "query": "SELECT i FROM Investigador i WHERE i.especialidad = :especialidad"
       }

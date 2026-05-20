@@ -1,6 +1,6 @@
-package com.instituto.api.repository;
+package com.repository;
 
-import com.instituto.api.entity.Laboratorio;
+import com.entity.Laboratorio;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List; // ESTA ES LA LÍNEA QUE FALTA

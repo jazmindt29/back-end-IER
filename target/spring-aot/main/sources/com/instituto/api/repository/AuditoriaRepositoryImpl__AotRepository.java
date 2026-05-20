@@ -1,4 +1,4 @@
-package com.instituto.api.repository;
+packagecom.repository;
 
 import jakarta.persistence.EntityManager;
 import org.springframework.aot.generate.Generated;

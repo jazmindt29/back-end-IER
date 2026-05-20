@@ -1,7 +1,7 @@
-package com.instituto.api.controller;
+package com.controller;
 
-import com.instituto.api.entity.Contacto;
-import com.instituto.api.repository.ContactoRepository;
+import com.entity.Contacto;
+import com.repository.ContactoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

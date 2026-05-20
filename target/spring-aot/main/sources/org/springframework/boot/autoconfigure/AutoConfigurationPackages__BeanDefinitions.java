@@ -31,7 +31,7 @@ public class AutoConfigurationPackages__BeanDefinitions {
     public static BeanDefinition getAutoConfigurationPackagesBeanDefinition() {
       RootBeanDefinition beanDefinition = new RootBeanDefinition(AutoConfigurationPackages.BasePackages.class);
       beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-      beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, new String[] {"com.instituto.api"});
+      beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, new String[] {"com. "});
       beanDefinition.setInstanceSupplier(getAutoConfigurationPackagesInstanceSupplier());
       return beanDefinition;
     }

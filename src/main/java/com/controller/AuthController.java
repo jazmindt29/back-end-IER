@@ -1,8 +1,8 @@
-package com.instituto.api.controller;
+package com.controller;
 
-import com.instituto.api.dto.AuthRequest;
-import com.instituto.api.repository.UsuarioRepository;
-import com.instituto.api.entity.Usuario;
+import com.dto.AuthRequest;
+import com.repository.UsuarioRepository;
+import com.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

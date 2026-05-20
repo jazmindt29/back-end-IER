@@ -1,7 +1,7 @@
-package com.instituto.api.service;
+package com.service;
 
-import com.instituto.api.entity.Auditoria;
-import com.instituto.api.repository.AuditoriaRepository;
+import com.entity.Auditoria;
+import com.repository.AuditoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;

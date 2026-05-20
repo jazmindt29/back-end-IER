@@ -17,12 +17,12 @@
       "allPublicConstructors": true
     },
     {
-      "type": "com.instituto.api.ApiApplication"
+      "type": "com .ApiApplication"
     },
     {
-      "type": "com.instituto.api.ApiApplication__ApplicationContextInitializer",
+      "type": "com .ApiApplication__ApplicationContextInitializer",
       "condition": {
-        "typeReached": "com.instituto.api.ApiApplication"
+        "typeReached": "com .ApiApplication"
       },
       "methods": [
         {
@@ -32,18 +32,18 @@
       ]
     },
     {
-      "type": "com.instituto.api.config.CorsConfig",
+      "type": "com .config.CorsConfig",
       "allPublicMethods": true,
       "allDeclaredMethods": true
     },
     {
-      "type": "com.instituto.api.config.CorsConfig$$SpringCGLIB$$0",
+      "type": "com .config.CorsConfig$$SpringCGLIB$$0",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "allDeclaredMethods": true
     },
     {
-      "type": "com.instituto.api.controller.ActividadController",
+      "type": "com .controller.ActividadController",
       "fields": [
         {
           "name": "repository"
@@ -54,13 +54,13 @@
           "name": "actualizar",
           "parameterTypes": [
             "java.lang.Long",
-            "com.instituto.api.entity.Actividad"
+            "com .entity.Actividad"
           ]
         },
         {
           "name": "crear",
           "parameterTypes": [
-            "com.instituto.api.entity.Actividad"
+            "com .entity.Actividad"
           ]
         },
         {
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.controller.AuthController",
+      "type": "com .controller.AuthController",
       "fields": [
         {
           "name": "usuarioRepository"
@@ -86,13 +86,13 @@
         {
           "name": "login",
           "parameterTypes": [
-            "com.instituto.api.dto.AuthRequest"
+            "com .dto.AuthRequest"
           ]
         }
       ]
     },
     {
-      "type": "com.instituto.api.controller.ComponenteController",
+      "type": "com .controller.ComponenteController",
       "fields": [
         {
           "name": "repository"
@@ -103,13 +103,13 @@
           "name": "actualizar",
           "parameterTypes": [
             "java.lang.Long",
-            "com.instituto.api.entity.Componente"
+            "com .entity.Componente"
           ]
         },
         {
           "name": "crear",
           "parameterTypes": [
-            "com.instituto.api.entity.Componente"
+            "com .entity.Componente"
           ]
         },
         {
@@ -125,7 +125,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.controller.ContactoController",
+      "type": "com .controller.ContactoController",
       "fields": [
         {
           "name": "repository"
@@ -135,13 +135,13 @@
         {
           "name": "enviarMensaje",
           "parameterTypes": [
-            "com.instituto.api.entity.Contacto"
+            "com .entity.Contacto"
           ]
         }
       ]
     },
     {
-      "type": "com.instituto.api.controller.InvestigadorController",
+      "type": "com .controller.InvestigadorController",
       "fields": [
         {
           "name": "service"
@@ -152,7 +152,7 @@
           "name": "actualizar",
           "parameterTypes": [
             "java.lang.Long",
-            "com.instituto.api.entity.Investigador"
+            "com .entity.Investigador"
           ]
         },
         {
@@ -170,7 +170,7 @@
         {
           "name": "crear",
           "parameterTypes": [
-            "com.instituto.api.entity.Investigador"
+            "com .entity.Investigador"
           ]
         },
         {
@@ -186,7 +186,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.controller.LaboratorioController",
+      "type": "com .controller.LaboratorioController",
       "fields": [
         {
           "name": "service"
@@ -197,7 +197,7 @@
           "name": "actualizar",
           "parameterTypes": [
             "java.lang.Long",
-            "com.instituto.api.entity.Laboratorio"
+            "com .entity.Laboratorio"
           ]
         },
         {
@@ -216,7 +216,7 @@
         {
           "name": "crear",
           "parameterTypes": [
-            "com.instituto.api.entity.Laboratorio"
+            "com .entity.Laboratorio"
           ]
         },
         {
@@ -232,7 +232,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.controller.ProyectoController",
+      "type": "com .controller.ProyectoController",
       "fields": [
         {
           "name": "proyectoService"
@@ -243,7 +243,7 @@
           "name": "actualizar",
           "parameterTypes": [
             "java.lang.Long",
-            "com.instituto.api.entity.Proyecto"
+            "com .entity.Proyecto"
           ]
         },
         {
@@ -256,7 +256,7 @@
         {
           "name": "crear",
           "parameterTypes": [
-            "com.instituto.api.entity.Proyecto"
+            "com .entity.Proyecto"
           ]
         },
         {
@@ -282,7 +282,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.controller.UsuarioController",
+      "type": "com .controller.UsuarioController",
       "fields": [
         {
           "name": "service"
@@ -308,13 +308,13 @@
         {
           "name": "registrar",
           "parameterTypes": [
-            "com.instituto.api.entity.Usuario"
+            "com .entity.Usuario"
           ]
         }
       ]
     },
     {
-      "type": "com.instituto.api.dto.AuthRequest",
+      "type": "com .dto.AuthRequest",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "methods": [
@@ -341,7 +341,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.entity.Actividad",
+      "type": "com .entity.Actividad",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "methods": [
@@ -388,15 +388,15 @@
       ]
     },
     {
-      "type": "com.instituto.api.entity.Actividad__Accessor_5njov6",
+      "type": "com .entity.Actividad__Accessor_5njov6",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Actividad__Instantiator_5njov6",
+      "type": "com .entity.Actividad__Instantiator_5njov6",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.AreaInvestigacion",
+      "type": "com .entity.AreaInvestigacion",
       "allDeclaredFields": true,
       "allPublicConstructors": true,
       "allDeclaredConstructors": true,
@@ -411,7 +411,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.entity.Auditoria",
+      "type": "com .entity.Auditoria",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "methods": [
@@ -468,15 +468,15 @@
       ]
     },
     {
-      "type": "com.instituto.api.entity.Auditoria__Accessor_5gzzsr",
+      "type": "com .entity.Auditoria__Accessor_5gzzsr",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Auditoria__Instantiator_5gzzsr",
+      "type": "com .entity.Auditoria__Instantiator_5gzzsr",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Componente",
+      "type": "com .entity.Componente",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "fields": [
@@ -538,15 +538,15 @@
       ]
     },
     {
-      "type": "com.instituto.api.entity.Componente__Accessor_822cvx",
+      "type": "com .entity.Componente__Accessor_822cvx",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Componente__Instantiator_822cvx",
+      "type": "com .entity.Componente__Instantiator_822cvx",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Contacto",
+      "type": "com .entity.Contacto",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "methods": [
@@ -617,15 +617,15 @@
       ]
     },
     {
-      "type": "com.instituto.api.entity.Contacto__Accessor_blp3na",
+      "type": "com .entity.Contacto__Accessor_blp3na",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Contacto__Instantiator_blp3na",
+      "type": "com .entity.Contacto__Instantiator_blp3na",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Investigador",
+      "type": "com .entity.Investigador",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "fields": [
@@ -685,7 +685,7 @@
         {
           "name": "setArea",
           "parameterTypes": [
-            "com.instituto.api.entity.AreaInvestigacion"
+            "com .entity.AreaInvestigacion"
           ]
         },
         {
@@ -751,21 +751,21 @@
         {
           "name": "setUsuario",
           "parameterTypes": [
-            "com.instituto.api.entity.Usuario"
+            "com .entity.Usuario"
           ]
         }
       ]
     },
     {
-      "type": "com.instituto.api.entity.Investigador__Accessor_lshey4",
+      "type": "com .entity.Investigador__Accessor_lshey4",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Investigador__Instantiator_lshey4",
+      "type": "com .entity.Investigador__Instantiator_lshey4",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Laboratorio",
+      "type": "com .entity.Laboratorio",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "methods": [
@@ -812,7 +812,7 @@
         {
           "name": "setEncargado",
           "parameterTypes": [
-            "com.instituto.api.entity.Investigador"
+            "com .entity.Investigador"
           ]
         },
         {
@@ -842,15 +842,15 @@
       ]
     },
     {
-      "type": "com.instituto.api.entity.Laboratorio__Accessor_8exgep",
+      "type": "com .entity.Laboratorio__Accessor_8exgep",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Laboratorio__Instantiator_8exgep",
+      "type": "com .entity.Laboratorio__Instantiator_8exgep",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Proyecto",
+      "type": "com .entity.Proyecto",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "methods": [
@@ -951,15 +951,15 @@
       ]
     },
     {
-      "type": "com.instituto.api.entity.Proyecto__Accessor_ii79q8",
+      "type": "com .entity.Proyecto__Accessor_ii79q8",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Proyecto__Instantiator_ii79q8",
+      "type": "com .entity.Proyecto__Instantiator_ii79q8",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Rol",
+      "type": "com .entity.Rol",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "methods": [
@@ -986,15 +986,15 @@
       ]
     },
     {
-      "type": "com.instituto.api.entity.Rol__Accessor_4myolo",
+      "type": "com .entity.Rol__Accessor_4myolo",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Rol__Instantiator_4myolo",
+      "type": "com .entity.Rol__Instantiator_4myolo",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Usuario",
+      "type": "com .entity.Usuario",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "methods": [
@@ -1049,7 +1049,7 @@
         {
           "name": "setRol",
           "parameterTypes": [
-            "com.instituto.api.entity.Rol"
+            "com .entity.Rol"
           ]
         },
         {
@@ -1061,96 +1061,96 @@
       ]
     },
     {
-      "type": "com.instituto.api.entity.Usuario__Accessor_ychr8t",
+      "type": "com .entity.Usuario__Accessor_ychr8t",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.entity.Usuario__Instantiator_ychr8t",
+      "type": "com .entity.Usuario__Instantiator_ychr8t",
       "allDeclaredConstructors": true
     },
     {
-      "type": "com.instituto.api.repository.ActividadRepository",
+      "type": "com .repository.ActividadRepository",
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.ActividadRepositoryImpl__AotRepository",
+      "type": "com .repository.ActividadRepositoryImpl__AotRepository",
       "allDeclaredConstructors": true,
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.AuditoriaRepository",
+      "type": "com .repository.AuditoriaRepository",
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.AuditoriaRepositoryImpl__AotRepository",
+      "type": "com .repository.AuditoriaRepositoryImpl__AotRepository",
       "allDeclaredConstructors": true,
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.ComponenteRepository",
+      "type": "com .repository.ComponenteRepository",
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.ComponenteRepositoryImpl__AotRepository",
+      "type": "com .repository.ComponenteRepositoryImpl__AotRepository",
       "allDeclaredConstructors": true,
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.ContactoRepository",
+      "type": "com .repository.ContactoRepository",
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.ContactoRepositoryImpl__AotRepository",
+      "type": "com .repository.ContactoRepositoryImpl__AotRepository",
       "allDeclaredConstructors": true,
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.InvestigadorRepository",
+      "type": "com .repository.InvestigadorRepository",
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.InvestigadorRepositoryImpl__AotRepository",
+      "type": "com .repository.InvestigadorRepositoryImpl__AotRepository",
       "allDeclaredConstructors": true,
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.LaboratorioRepository",
+      "type": "com .repository.LaboratorioRepository",
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.LaboratorioRepositoryImpl__AotRepository",
+      "type": "com .repository.LaboratorioRepositoryImpl__AotRepository",
       "allDeclaredConstructors": true,
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.ProyectoRepository",
+      "type": "com .repository.ProyectoRepository",
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.ProyectoRepositoryImpl__AotRepository",
+      "type": "com .repository.ProyectoRepositoryImpl__AotRepository",
       "allDeclaredConstructors": true,
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.RolRepository",
+      "type": "com .repository.RolRepository",
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.RolRepositoryImpl__AotRepository",
+      "type": "com .repository.RolRepositoryImpl__AotRepository",
       "allDeclaredConstructors": true,
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.UsuarioRepository",
+      "type": "com .repository.UsuarioRepository",
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.repository.UsuarioRepositoryImpl__AotRepository",
+      "type": "com .repository.UsuarioRepositoryImpl__AotRepository",
       "allDeclaredConstructors": true,
       "allPublicMethods": true
     },
     {
-      "type": "com.instituto.api.service.AuditoriaService",
+      "type": "com .service.AuditoriaService",
       "fields": [
         {
           "name": "repo"
@@ -1158,7 +1158,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.service.InvestigadorService",
+      "type": "com .service.InvestigadorService",
       "fields": [
         {
           "name": "investigadorRepository"
@@ -1166,7 +1166,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.service.LaboratorioService",
+      "type": "com .service.LaboratorioService",
       "fields": [
         {
           "name": "componenteRepository"
@@ -1177,7 +1177,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.service.ProyectoService",
+      "type": "com .service.ProyectoService",
       "fields": [
         {
           "name": "investigadorRepository"
@@ -1188,7 +1188,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.service.RolService",
+      "type": "com .service.RolService",
       "fields": [
         {
           "name": "repo"
@@ -1196,7 +1196,7 @@
       ]
     },
     {
-      "type": "com.instituto.api.service.UsuarioService",
+      "type": "com .service.UsuarioService",
       "allPublicMethods": true,
       "allDeclaredMethods": true,
       "fields": [
@@ -1211,19 +1211,19 @@
         {
           "name": "registrarUsuario",
           "parameterTypes": [
-            "com.instituto.api.entity.Usuario"
+            "com .entity.Usuario"
           ]
         }
       ]
     },
     {
-      "type": "com.instituto.api.service.UsuarioService$$SpringCGLIB$$0",
+      "type": "com .service.UsuarioService$$SpringCGLIB$$0",
       "allDeclaredFields": true,
       "allDeclaredConstructors": true,
       "allDeclaredMethods": true
     },
     {
-      "type": "com.instituto.api.TestController",
+      "type": "com .TestController",
       "fields": [
         {
           "name": "rolRepo"
@@ -11942,7 +11942,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ActividadRepository",
+          "com .repository.ActividadRepository",
           "org.springframework.aop.SpringProxy",
           "org.springframework.aop.framework.Advised",
           "org.springframework.core.DecoratingProxy"
@@ -11952,7 +11952,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ActividadRepository",
+          "com .repository.ActividadRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -11963,7 +11963,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ActividadRepository",
+          "com .repository.ActividadRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -11975,7 +11975,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.AuditoriaRepository",
+          "com .repository.AuditoriaRepository",
           "org.springframework.aop.SpringProxy",
           "org.springframework.aop.framework.Advised",
           "org.springframework.core.DecoratingProxy"
@@ -11985,7 +11985,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.AuditoriaRepository",
+          "com .repository.AuditoriaRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -11996,7 +11996,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.AuditoriaRepository",
+          "com .repository.AuditoriaRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12008,7 +12008,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ComponenteRepository",
+          "com .repository.ComponenteRepository",
           "org.springframework.aop.SpringProxy",
           "org.springframework.aop.framework.Advised",
           "org.springframework.core.DecoratingProxy"
@@ -12018,7 +12018,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ComponenteRepository",
+          "com .repository.ComponenteRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12029,7 +12029,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ComponenteRepository",
+          "com .repository.ComponenteRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12041,7 +12041,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ContactoRepository",
+          "com .repository.ContactoRepository",
           "org.springframework.aop.SpringProxy",
           "org.springframework.aop.framework.Advised",
           "org.springframework.core.DecoratingProxy"
@@ -12051,7 +12051,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ContactoRepository",
+          "com .repository.ContactoRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12062,7 +12062,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ContactoRepository",
+          "com .repository.ContactoRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12074,7 +12074,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.InvestigadorRepository",
+          "com .repository.InvestigadorRepository",
           "org.springframework.aop.SpringProxy",
           "org.springframework.aop.framework.Advised",
           "org.springframework.core.DecoratingProxy"
@@ -12084,7 +12084,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.InvestigadorRepository",
+          "com .repository.InvestigadorRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12095,7 +12095,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.InvestigadorRepository",
+          "com .repository.InvestigadorRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12107,7 +12107,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.LaboratorioRepository",
+          "com .repository.LaboratorioRepository",
           "org.springframework.aop.SpringProxy",
           "org.springframework.aop.framework.Advised",
           "org.springframework.core.DecoratingProxy"
@@ -12117,7 +12117,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.LaboratorioRepository",
+          "com .repository.LaboratorioRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12128,7 +12128,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.LaboratorioRepository",
+          "com .repository.LaboratorioRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12140,7 +12140,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ProyectoRepository",
+          "com .repository.ProyectoRepository",
           "org.springframework.aop.SpringProxy",
           "org.springframework.aop.framework.Advised",
           "org.springframework.core.DecoratingProxy"
@@ -12150,7 +12150,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ProyectoRepository",
+          "com .repository.ProyectoRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12161,7 +12161,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.ProyectoRepository",
+          "com .repository.ProyectoRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12173,7 +12173,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.RolRepository",
+          "com .repository.RolRepository",
           "org.springframework.aop.SpringProxy",
           "org.springframework.aop.framework.Advised",
           "org.springframework.core.DecoratingProxy"
@@ -12183,7 +12183,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.RolRepository",
+          "com .repository.RolRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12194,7 +12194,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.RolRepository",
+          "com .repository.RolRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12206,7 +12206,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.UsuarioRepository",
+          "com .repository.UsuarioRepository",
           "org.springframework.aop.SpringProxy",
           "org.springframework.aop.framework.Advised",
           "org.springframework.core.DecoratingProxy"
@@ -12216,7 +12216,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.UsuarioRepository",
+          "com .repository.UsuarioRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",
@@ -12227,7 +12227,7 @@
     {
       "type": {
         "proxy": [
-          "com.instituto.api.repository.UsuarioRepository",
+          "com .repository.UsuarioRepository",
           "org.springframework.data.repository.Repository",
           "org.springframework.transaction.interceptor.TransactionalProxy",
           "org.springframework.aop.framework.Advised",

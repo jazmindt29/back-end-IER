@@ -1,4 +1,4 @@
-package com.instituto.api.entity;
+package com.entity;
 
 public enum AreaInvestigacion {
     ENERGIA,

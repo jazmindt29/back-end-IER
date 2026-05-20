@@ -1,6 +1,6 @@
-package com.instituto.api.dto;
+package com.dto;
 
-import com.instituto.api.entity.AreaInvestigacion;
+import com.entity.AreaInvestigacion;
 import lombok.Data;
 
 @Data

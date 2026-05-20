@@ -1,4 +1,4 @@
-package com.instituto.api.entity;
+package com.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

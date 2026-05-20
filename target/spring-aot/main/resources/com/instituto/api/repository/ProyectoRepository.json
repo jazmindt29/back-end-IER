@@ -1,11 +1,11 @@
 {
-  "name": "com.instituto.api.repository.ProyectoRepository",
+  "name": "com .repository.ProyectoRepository",
   "module": "JPA",
   "type": "IMPERATIVE",
   "methods": [
     {
       "name": "findByEsDestacadoTrue",
-      "signature": "public abstract java.util.List<com.instituto.api.entity.Proyecto> com.instituto.api.repository.ProyectoRepository.findByEsDestacadoTrue()",
+      "signature": "public abstract java.util.List<com .entity.Proyecto>com.repository.ProyectoRepository.findByEsDestacadoTrue()",
       "query": {
         "query": "SELECT p FROM Proyecto p WHERE p.esDestacado = TRUE"
       }

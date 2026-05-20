@@ -1,7 +1,7 @@
-package com.instituto.api.controller;
+package com.controller;
 
-import com.instituto.api.entity.Actividad;
-import com.instituto.api.repository.ActividadRepository;
+import com.entity.Actividad;
+import com.repository.ActividadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

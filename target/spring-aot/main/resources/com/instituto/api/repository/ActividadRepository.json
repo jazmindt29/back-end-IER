@@ -1,5 +1,5 @@
 {
-  "name": "com.instituto.api.repository.ActividadRepository",
+  "name": "com .repository.ActividadRepository",
   "module": "JPA",
   "type": "IMPERATIVE",
   "methods": [

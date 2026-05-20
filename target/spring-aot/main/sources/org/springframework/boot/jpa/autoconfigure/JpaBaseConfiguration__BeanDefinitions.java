@@ -95,7 +95,7 @@ public class JpaBaseConfiguration__BeanDefinitions {
      * Get the bean instance for 'persistenceManagedTypes'.
      */
     private static PersistenceManagedTypes getPersistenceManagedTypesInstance() {
-      List<String> managedClassNames = List.of("com.instituto.api.entity.Actividad", "com.instituto.api.entity.Auditoria", "com.instituto.api.entity.Componente", "com.instituto.api.entity.Contacto", "com.instituto.api.entity.Investigador", "com.instituto.api.entity.Laboratorio", "com.instituto.api.entity.Proyecto", "com.instituto.api.entity.Rol", "com.instituto.api.entity.Usuario");
+      List<String> managedClassNames = List.of("com .entity.Actividad", "com .entity.Auditoria", "com .entity.Componente", "com .entity.Contacto", "com .entity.Investigador", "com .entity.Laboratorio", "com .entity.Proyecto", "com .entity.Rol", "com .entity.Usuario");
       List<String> managedPackages = List.of();
       return PersistenceManagedTypes.of(managedClassNames, managedPackages);
     }

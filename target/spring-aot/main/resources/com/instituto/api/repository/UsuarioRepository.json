@@ -1,11 +1,11 @@
 {
-  "name": "com.instituto.api.repository.UsuarioRepository",
+  "name": "com .repository.UsuarioRepository",
   "module": "JPA",
   "type": "IMPERATIVE",
   "methods": [
     {
       "name": "findByUsername",
-      "signature": "public abstract java.util.Optional<com.instituto.api.entity.Usuario> com.instituto.api.repository.UsuarioRepository.findByUsername(java.lang.String)",
+      "signature": "public abstract java.util.Optional<com .entity.Usuario>com.repository.UsuarioRepository.findByUsername(java.lang.String)",
       "query": {
         "query": "SELECT u FROM Usuario u WHERE u.username = :username"
       }

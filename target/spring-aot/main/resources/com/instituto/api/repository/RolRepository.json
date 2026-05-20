@@ -1,5 +1,5 @@
 {
-  "name": "com.instituto.api.repository.RolRepository",
+  "name": "com .repository.RolRepository",
   "module": "JPA",
   "type": "IMPERATIVE",
   "methods": [

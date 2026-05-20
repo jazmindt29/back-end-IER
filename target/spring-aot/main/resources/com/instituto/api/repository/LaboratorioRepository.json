@@ -1,11 +1,11 @@
 {
-  "name": "com.instituto.api.repository.LaboratorioRepository",
+  "name": "com .repository.LaboratorioRepository",
   "module": "JPA",
   "type": "IMPERATIVE",
   "methods": [
     {
       "name": "findByNombreContainingIgnoreCase",
-      "signature": "public abstract java.util.List<com.instituto.api.entity.Laboratorio> com.instituto.api.repository.LaboratorioRepository.findByNombreContainingIgnoreCase(java.lang.String)",
+      "signature": "public abstract java.util.List<com .entity.Laboratorio>com.repository.LaboratorioRepository.findByNombreContainingIgnoreCase(java.lang.String)",
       "query": {
         "query": "SELECT l FROM Laboratorio l WHERE UPPER(l.nombre) LIKE UPPER(:nombre) ESCAPE '\\'"
       }

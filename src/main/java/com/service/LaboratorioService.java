@@ -1,9 +1,9 @@
-package com.instituto.api.service;
+package com.service;
 
-import com.instituto.api.entity.Laboratorio;
-import com.instituto.api.entity.Componente;
-import com.instituto.api.repository.LaboratorioRepository;
-import com.instituto.api.repository.ComponenteRepository;
+import com.entity.Laboratorio;
+import com.entity.Componente;
+import com.repository.LaboratorioRepository;
+import com.repository.ComponenteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;

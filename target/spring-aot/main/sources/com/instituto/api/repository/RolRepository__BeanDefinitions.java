@@ -1,6 +1,6 @@
-package com.instituto.api.repository;
+packagecom.repository;
 
-import com.instituto.api.entity.Rol;
+importcom.entity.Rol;
 import jakarta.persistence.EntityManager;
 import java.lang.Class;
 import java.lang.Long;
@@ -39,7 +39,7 @@ public class RolRepository__BeanDefinitions {
     RootBeanDefinition beanDefinition = new RootBeanDefinition(JpaRepositoryFactoryBean.class);
     beanDefinition.setTargetType(ResolvableType.forClassWithGenerics(JpaRepositoryFactoryBean.class, RolRepository.class, Rol.class, Long.class));
     beanDefinition.setLazyInit(false);
-    beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, "com.instituto.api.repository.RolRepository");
+    beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, "com .repository.RolRepository");
     beanDefinition.getPropertyValues().addPropertyValue("queryLookupStrategyKey", QueryLookupStrategy.Key.CREATE_IF_NOT_FOUND);
     beanDefinition.getPropertyValues().addPropertyValue("lazyInit", false);
     beanDefinition.getPropertyValues().addPropertyValue("namedQueries", new RuntimeBeanReference("jpa.named-queries#7"));
@@ -54,7 +54,7 @@ public class RolRepository__BeanDefinitions {
       public RepositoryComposition.RepositoryFragments getRepositoryFragments(
           BeanFactory beanFactory, RepositoryFactoryBeanSupport.FragmentCreationContext context) {
         EntityManager entityManager = beanFactory.getBean(EntityManager.class);
-        return RepositoryComposition.RepositoryFragments.just(new com.instituto.api.repository.RolRepositoryImpl__AotRepository(entityManager, context));
+        return RepositoryComposition.RepositoryFragments.just(newcom.repository.RolRepositoryImpl__AotRepository(entityManager, context));
       }
     });
     InstanceSupplier<JpaRepositoryFactoryBean> instanceSupplier = getRolRepositoryInstanceSupplier();

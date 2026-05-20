@@ -1,9 +1,9 @@
-package com.instituto.api.controller;
+package com.controller;
 
-import com.instituto.api.dto.InvestigadorDTO;
-import com.instituto.api.entity.AreaInvestigacion;
-import com.instituto.api.entity.Investigador;
-import com.instituto.api.service.InvestigadorService;
+import com.dto.InvestigadorDTO;
+import com.entity.AreaInvestigacion;
+import com.entity.Investigador;
+import com.service.InvestigadorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,0 +1,24 @@
+### Archivos de Java y Maven ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+HELP.md
+
+### Archivos de IDEs (VS Code, Eclipse, IntelliJ) ###
+.vscode/
+.idea
+*.iws
+*.iml
+*.ipr
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### Sistema Operativo ###
+.DS_Store
+Thumbs.db

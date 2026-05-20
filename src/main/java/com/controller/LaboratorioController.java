@@ -1,7 +1,7 @@
-package com.instituto.api.controller;
+package com.controller;
 
-import com.instituto.api.entity.Laboratorio;
-import com.instituto.api.service.LaboratorioService;
+import com.entity.Laboratorio;
+import com.service.LaboratorioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

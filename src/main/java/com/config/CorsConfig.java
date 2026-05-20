@@ -1,4 +1,4 @@
-package com.instituto.api.config;
+package com.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

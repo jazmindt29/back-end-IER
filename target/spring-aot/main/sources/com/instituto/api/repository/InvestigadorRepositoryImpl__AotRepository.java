@@ -1,7 +1,7 @@
-package com.instituto.api.repository;
+packagecom.repository;
 
-import com.instituto.api.entity.AreaInvestigacion;
-import com.instituto.api.entity.Investigador;
+importcom.entity.AreaInvestigacion;
+importcom.entity.Investigador;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.lang.String;
@@ -28,7 +28,7 @@ public class InvestigadorRepositoryImpl__AotRepository extends AotRepositoryFrag
   }
 
   /**
-   * AOT generated implementation of {@link InvestigadorRepository#findByArea(com.instituto.api.entity.AreaInvestigacion)}.
+   * AOT generated implementation of {@link InvestigadorRepository#findByArea(com .entity.AreaInvestigacion)}.
    */
   public List<Investigador> findByArea(AreaInvestigacion area) {
     String queryString = "SELECT i FROM Investigador i WHERE i.area = :area";

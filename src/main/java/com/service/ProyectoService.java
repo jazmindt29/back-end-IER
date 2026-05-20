@@ -1,9 +1,9 @@
-package com.instituto.api.service;
+package com.service;
 
-import com.instituto.api.entity.Investigador;
-import com.instituto.api.entity.Proyecto;
-import com.instituto.api.repository.InvestigadorRepository;
-import com.instituto.api.repository.ProyectoRepository;
+import com.entity.Investigador;
+import com.entity.Proyecto;
+import com.repository.InvestigadorRepository;
+import com.repository.ProyectoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,5 +1,5 @@
 {
-  "name": "com.instituto.api.repository.ContactoRepository",
+  "name": "com .repository.ContactoRepository",
   "module": "JPA",
   "type": "IMPERATIVE",
   "methods": [

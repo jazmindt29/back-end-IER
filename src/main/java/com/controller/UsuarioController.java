@@ -1,7 +1,7 @@
-package com.instituto.api.controller;
+package com.controller;
 
-import com.instituto.api.entity.Usuario;
-import com.instituto.api.service.UsuarioService;
+import com.entity.Usuario;
+import com.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
