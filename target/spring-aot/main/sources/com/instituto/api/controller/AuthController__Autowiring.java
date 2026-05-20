@@ -1,0 +1,19 @@
+package com.instituto.api.controller;
+
+import org.springframework.aot.generate.Generated;
+import org.springframework.beans.factory.aot.AutowiredFieldValueResolver;
+import org.springframework.beans.factory.support.RegisteredBean;
+
+/**
+ * Autowiring for {@link AuthController}.
+ */
+@Generated
+public class AuthController__Autowiring {
+  /**
+   * Apply the autowiring.
+   */
+  public static AuthController apply(RegisteredBean registeredBean, AuthController instance) {
+    AutowiredFieldValueResolver.forRequiredField("usuarioRepository").resolveAndSet(registeredBean, instance);
+    return instance;
+  }
+}
