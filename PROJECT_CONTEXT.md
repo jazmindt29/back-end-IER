@@ -365,17 +365,9 @@ Sin credenciales SMTP el sistema funciona: los correos fallan de forma controlad
 
 **Ejecutar el proyecto:**
 ```bash
-# Base de datos (contenedor Docker de desarrollo, ya creado en esta máquina)
-docker start ier-postgres        # postgres:16, BD "IER", postgres/jazmin, :5432
-
-# Backend
-cd backend
-./run.sh                         # :8080 — Hibernate crea las tablas/columnas nuevas
-
-# Frontend
-cd frontend
-npm start                        # :4200
+./start.sh    # levanta BD (Docker) + backend (:8080) + frontend (:4200); Ctrl+C detiene todo
 ```
+El script crea/arranca el contenedor `ier-postgres`, espera a que el backend responda (log en `/tmp/ier-backend.log`) y deja el frontend en primer plano. También se puede levantar cada parte por separado (ver README de la raíz).
 
 **Datos iniciales (ya sembrados en el contenedor):** roles `ADMIN` (id 1) e `INVESTIGADOR` (id 4), y un usuario administrador `admin` / `admin123` (cifrado con BCrypt en el primer arranque). Las contraseñas en texto plano existentes se cifran automáticamente al arrancar.
 
@@ -393,6 +385,8 @@ npm start                        # :4200
 proyecto_instituto/
 ├── README.md                         # inicio rápido (BD Docker, backend, frontend)
 ├── PROJECT_CONTEXT.md                # esta guía técnica
+├── start.sh                          # levanta BD + backend + frontend (Linux/macOS/Git Bash/WSL)
+├── start.ps1                         # equivalente para Windows (PowerShell/cmd)
 ├── .gitignore                        # único para todo el repo
 ├── backend/                          # API REST Spring Boot (:8080)
 │   ├── pom.xml

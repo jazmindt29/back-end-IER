@@ -10,10 +10,21 @@ Sistema web del instituto: catálogo público de laboratorios, investigadores, p
 ## Cómo ejecutarlo
 
 ```bash
-# 1. Base de datos (contenedor de desarrollo)
-docker run --name ier-postgres -e POSTGRES_PASSWORD=jazmin -e POSTGRES_DB=IER \
-  -p 5432:5432 -d postgres:16
-# (si ya existe: docker start ier-postgres)
+./start.sh                                        # Linux / macOS / Git Bash / WSL
+powershell -ExecutionPolicy Bypass -File start.ps1   # Windows (PowerShell o cmd)
+```
+
+Eso es todo: el script levanta la base de datos en Docker (crea el contenedor si no existe), arranca el backend y espera a que responda, y abre el frontend. `Ctrl+C` detiene backend y frontend (el contenedor de BD queda corriendo). Log del backend: `/tmp/ier-backend.log` (Windows: `%TEMP%\ier-backend.log`).
+
+Abrir <http://localhost:4200>. Usuario administrador de desarrollo: `admin` / `admin123`.
+
+<details>
+<summary>Levantar cada parte por separado</summary>
+
+```bash
+# 1. Base de datos
+docker start ier-postgres || docker run --name ier-postgres \
+  -e POSTGRES_PASSWORD=jazmin -e POSTGRES_DB=IER -p 5432:5432 -d postgres:16
 
 # 2. Backend
 cd backend && ./run.sh
@@ -21,8 +32,7 @@ cd backend && ./run.sh
 # 3. Frontend (en otra terminal)
 cd frontend && npm install && npm start
 ```
-
-Abrir <http://localhost:4200>. Usuario administrador de desarrollo: `admin` / `admin123`.
+</details>
 
 En el primer arranque Hibernate crea las tablas nuevas y las contraseñas en texto plano se cifran automáticamente con BCrypt. La tabla `roles` debe tener `ADMIN` (o `ADMINISTRADOR`) e `INVESTIGADOR` con id 4.
 
