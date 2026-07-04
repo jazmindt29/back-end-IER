@@ -1,0 +1,16 @@
+# Backend (Maven)
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Frontend (Angular/Node)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/tmp/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
