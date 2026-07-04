@@ -1,1 +1,65 @@
-<p>home works!</p>
+<h1 class="mb-4">Instituto de Energías Renovables</h1>
+
+<section class="mb-5">
+  <h2 class="h4 border-bottom pb-2">Avisos y publicaciones</h2>
+  @if (avisos.length === 0) {
+    <p class="text-muted">No hay avisos publicados por el momento.</p>
+  }
+  <div class="row g-3">
+    @for (aviso of avisos; track aviso.id) {
+      <div class="col-md-6">
+        <div class="card h-100">
+          @if (aviso.imagenUrl) {
+            <img [src]="aviso.imagenUrl" class="card-img-top media-cover" [alt]="aviso.titulo">
+          }
+          <div class="card-body">
+            <h3 class="h5 card-title">{{ aviso.titulo }}</h3>
+            <p class="card-subtitle text-muted small mb-2">
+              {{ aviso.fechaPublicacion | date: 'dd/MM/yyyy HH:mm' }}
+            </p>
+            <p class="card-text" [class.texto-recortado]="!expandido('a' + aviso.id)">
+              {{ aviso.contenido }}
+            </p>
+            @if (aviso.contenido.length > 180) {
+              <button class="btn btn-link btn-sm p-0" (click)="toggle('a' + aviso.id)">
+                {{ expandido('a' + aviso.id) ? 'Ver menos' : 'Ver más' }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>
+
+<section>
+  <h2 class="h4 border-bottom pb-2">Proyectos destacados</h2>
+  @if (destacados.length === 0) {
+    <p class="text-muted">No hay proyectos destacados por el momento.</p>
+  }
+  <div class="row g-3">
+    @for (proyecto of destacados; track proyecto.id) {
+      <div class="col-md-4">
+        <div class="card h-100">
+          @if (proyecto.imagenUrl) {
+            <img [src]="proyecto.imagenUrl" class="card-img-top media-cover" [alt]="proyecto.titulo">
+          }
+          <div class="card-body">
+            <h3 class="h5 card-title">{{ proyecto.titulo }}</h3>
+            @if (proyecto.estado) {
+              <span class="badge text-bg-secondary mb-2">{{ proyecto.estado }}</span>
+            }
+            <p class="card-text" [class.texto-recortado]="!expandido('p' + proyecto.id)">
+              {{ proyecto.descripcion }}
+            </p>
+            @if ((proyecto.descripcion?.length ?? 0) > 180) {
+              <button class="btn btn-link btn-sm p-0" (click)="toggle('p' + proyecto.id)">
+                {{ expandido('p' + proyecto.id) ? 'Ver menos' : 'Ver más' }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

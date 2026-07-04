@@ -1,6 +1,7 @@
 package com.instituto.api.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +14,7 @@ public class Proyecto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String titulo;
     private String descripcion;
     private String estado; 
@@ -35,8 +37,7 @@ public class Proyecto {
     @JoinTable(
         name = "proyecto_investigadores",
         joinColumns = @JoinColumn(name = "proyecto_id"),
-        // AJUSTE: He puesto el guion bajo final para que coincida con tu pgAdmin
-        inverseJoinColumns = @JoinColumn(name = "investigador_id") 
+        inverseJoinColumns = @JoinColumn(name = "investigador_id")
     )
     private List<Investigador> investigadores;
 

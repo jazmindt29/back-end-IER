@@ -11,6 +11,7 @@ public class Rol {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true) // <--- Aquí está el truco
-    private String nombre; 
+    // La columna en BD se llama "name"
+    @Column(name = "name", nullable = false, unique = true)
+    private String nombre;
 }

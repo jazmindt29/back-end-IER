@@ -1,512 +1,435 @@
 # PROJECT_CONTEXT.md — Instituto (IER)
 
-Documentación técnica generada por análisis directo del código fuente. Todo lo aquí escrito corresponde a lo que existe hoy en el repositorio; donde algo no pudo determinarse, se indica explícitamente.
+Documentación técnica del proyecto. Actualizada el **2026-07-04** tras la implementación de seguridad (JWT/BCrypt), el flujo de invitación por correo, los módulos de reservas y avisos, y el frontend completo.
 
 ## Índice
 
-0. [Limpieza y reorganización (2026-07-03)](#0-limpieza-y-reorganización-2026-07-03)
-1. [Arquitectura general](#1-arquitectura-general)
-2. [Backend](#2-backend)
-3. [Frontend](#3-frontend)
-4. [Comunicación Frontend ↔ Backend](#4-comunicación-frontend--backend)
-5. [Base de datos](#5-base-de-datos)
-6. [Flujo del sistema](#6-flujo-del-sistema)
-7. [Dependencias](#7-dependencias)
-8. [Variables de entorno / configuración](#8-variables-de-entorno--configuración)
-9. [Seguridad](#9-seguridad)
-10. [Problemas encontrados](#10-problemas-encontrados)
-11. [Resumen para un nuevo desarrollador](#11-resumen-para-un-nuevo-desarrollador)
-12. [Mapa completo del proyecto](#12-mapa-completo-del-proyecto)
+1. [Historial de cambios](#1-historial-de-cambios)
+2. [Arquitectura general](#2-arquitectura-general)
+3. [Backend](#3-backend)
+4. [Frontend](#4-frontend)
+5. [Comunicación Frontend ↔ Backend](#5-comunicación-frontend--backend)
+6. [Base de datos](#6-base-de-datos)
+7. [Flujos del sistema](#7-flujos-del-sistema)
+8. [Dependencias](#8-dependencias)
+9. [Variables de entorno](#9-variables-de-entorno)
+10. [Seguridad](#10-seguridad)
+11. [Problemas conocidos / pendientes](#11-problemas-conocidos--pendientes)
+12. [Guía para un nuevo desarrollador](#12-guía-para-un-nuevo-desarrollador)
+13. [Mapa completo del proyecto](#13-mapa-completo-del-proyecto)
 
 ---
 
-## 0. Limpieza y reorganización (2026-07-03)
+## 1. Historial de cambios
 
-Se hizo una reestructuración del proyecto para eliminar desorden acumulado. Cambios aplicados:
+**2026-07-03 — Limpieza estructural:** `api/api` → `backend/`, `frontend-instituto` → `frontend/`; se eliminaron artefactos de build, `TestController` de diagnóstico y el `app.config.ts` duplicado; typos de `pom.xml` corregidos; repo git unificado en la raíz.
 
-| Antes | Después | Motivo |
+**2026-07-04 — Implementación de funcionalidades y seguridad (plan IER):**
+- **Seguridad:** Spring Security + BCrypt + JWT (HS256 vía oauth2-resource-server). Migración automática de contraseñas en texto plano al arrancar. CORS por variable de entorno. Credenciales de BD extraídas a variables de entorno.
+- **Flujo de invitación:** el admin registra nombre+correo → cuenta inactiva con `token_invitacion` (48h) → email con enlace → el investigador establece su contraseña en `/configurar-cuenta`.
+- **Modelo de datos:** `Componente` ahora pertenece a un `Laboratorio` (ManyToOne); nuevas entidades `ReservaLaboratorio` (con validación anti-traslapes) y `Aviso` (con autor admin); `Auditoria` extendida con `accion`/`entidad`/`entidad_id`; validaciones JSR-380 en todas las entidades de entrada; `ddl-auto=update` para que Hibernate cree lo nuevo.
+- **API:** endpoints nuevos (`/api/auth/*`, `/api/avisos`, `/api/reservas`, `/api/auditoria`, `/api/proyectos/destacados`, `/api/investigadores/mi-perfil`), `@PreAuthorize` por rol en todas las mutaciones, filtros (`?area=`, `?laboratorioId=`, `?investigadorId=`), contacto que notifica por SMTP, auditoría automática en mutaciones de proyectos/laboratorios/perfiles, manejador global de excepciones.
+- **Frontend:** HttpClient + interceptor JWT + guards; páginas públicas (home con avisos y destacados, laboratorios con materiales, investigadores con filtro Agua/Energía, calendario mes/semana/día, contacto con validación Gmail); login; `/configurar-cuenta`; panel de investigador (perfil propio + reservas); panel de administrador (invitaciones, CRUDs completos, edición de perfiles, visor de auditoría).
+
+**2026-07-04 — Limpieza, UI/UX y documentación:**
+- **Layout:** footer siempre al fondo de la ventana (flexbox en `styles.css` sobre `app-root`/`main`); antes quedaba a media página con contenido corto.
+- **Navbar responsive:** patrón collapse de Bootstrap con botón hamburguesa; se agregó `bootstrap.bundle.min.js` a `angular.json` (antes solo se cargaba el CSS, ningún componente interactivo de Bootstrap funcionaba).
+- **UI:** contenido real en "Quiénes Somos" (era un placeholder), `index.html` con `lang="es"` y título correcto, botón de agendar con ícono.
+- **Código:** URL del backend deduplicada en `core/api.constants.ts`; eliminados 5 CSS vacíos y sus `styleUrl`; corregido `app.spec.ts` roto; bug del calendario al construir semanas del mes; en backend se eliminó código muerto (`RolService`, `UsuarioService.guardar`, `ProyectoService.obtenerPorId`, métodos de repos sin uso) y los comentarios de parche heredados; borrado `HELP.md`.
+- **Repo:** `.gitignore` único en la raíz (se eliminaron los de backend/frontend, redundantes), `README.md` en la raíz y README del frontend reescrito sin boilerplate; se ignora `.claude/settings.local.json`.
+- **Entorno:** variables de BD renombradas a `IER_DB_*` y script `backend/run.sh` (las `SPRING_DATASOURCE_*` globales de otro proyecto de esta máquina tienen prioridad sobre `application.properties` y rompían el arranque). BD de desarrollo en Docker: contenedor `ier-postgres` con roles y usuario `admin`/`admin123` sembrados.
+
+---
+
+## 2. Arquitectura general
+
+Monorepo con dos proyectos:
+
+| | Backend | Frontend |
 |---|---|---|
-| `api/api/` (doble anidación) | `backend/` | nombre plano y descriptivo, sin carpeta contenedora vacía |
-| `frontend-instituto/` | `frontend/` | nombre corto y consistente con `backend/` |
-| `api/.github/java-upgrade/`, `api/api/.github/java-upgrade/` | eliminados | logs de una herramienta automática de upgrade de Java, no era parte del proyecto |
-| `backend/target/` | eliminado | artefacto de compilación Maven, se regenera con `mvn compile` |
-| `frontend/.angular/cache/` | eliminado | caché de build de Angular, se regenera con `ng serve`/`ng build` |
-| `TestController.java` (endpoint `/api/test/check-roles`) | eliminado | controlador de diagnóstico temporal, no era una funcionalidad real del sistema |
-| `pom.xml`: `groupId` con espacio (`com.instituto `), `artifactId`/`name` = `api` | `groupId` limpio, `artifactId`/`name` = `backend` | typo corregido y nombre coherente con la carpeta |
-| `app.config.ts` (copia duplicada de `app.ts`) | `app.config.ts` con el `ApplicationConfig` real (`provideRouter`) | es el patrón estándar de Angular; `main.ts` ahora importa `appConfig` en vez de tener los providers inline |
-| `angular.json`, `package.json`, `package-lock.json`, `app.ts`, `app.spec.ts`: identificador `frontend-instituto` | `frontend` | coherencia con el nuevo nombre de carpeta |
+| Carpeta | `backend/` | `frontend/` |
+| Stack | Java 17, Spring Boot 4.0.1, Maven | Angular 20.3 (standalone), TypeScript 5.9 |
+| Seguridad | Spring Security 7, JWT HS256, BCrypt | Interceptor JWT, guards por rol |
+| Datos | PostgreSQL (`IER`), Spring Data JPA/Hibernate | — |
+| UI | — | Bootstrap 5.3 + bootstrap-icons |
+| Arquitectura | Capas: Controller → Service → Repository → Entity | `core/` (servicios/guards) + `pages/` + `components/` |
 
-**Verificado tras los cambios:** el backend compila (`./mvnw compile`) y el frontend tipa correctamente (`tsc --noEmit`) sin errores.
-
-**No se tocó:**
-- La lógica de negocio de los controllers/services (comentarios de parche, falta de capa Service en Actividad/Componente, manejo de excepciones) — es refactor de código, no limpieza de estructura; queda listado en [§10](#10-problemas-encontrados) para una siguiente pasada si se pide explícitamente.
-- El `.git` interno de `frontend/` (Angular CLI lo crea automáticamente al hacer `ng new`) — la raíz del proyecto no es un repo git, así que no había nada que reconciliar; se dejó intacto para no perder su historial.
-- `node_modules/` — no es basura de build gestionable por el proyecto, se reinstala con `npm install`, pero borrarlo no era necesario para la limpieza pedida.
+Se ejecutan por separado: backend en `:8080`, frontend en `:4200` (CORS ya configurado).
 
 ---
 
-## 1. Arquitectura general
+## 3. Backend
 
-- **Tipo de arquitectura:** dos proyectos independientes en el mismo repo (monorepo de facto, sin workspace ni script raíz que los una):
-  - `backend` — backend REST en **Spring Boot** (arquitectura en capas: Controller → Service → Repository → Entity/JPA).
-  - `frontend` — frontend en **Angular** (standalone components, sin NgModules).
-- No hay `docker-compose.yml`, `Makefile` ni script en la raíz que levante ambos proyectos juntos. Se ejecutan por separado.
-- **Backend:**
-  - Java 17
-  - Spring Boot **4.0.1** (`spring-boot-starter-parent`)
-  - Maven (con wrapper `mvnw`)
-  - PostgreSQL como base de datos
-  - Lombok para reducir boilerplate (`@Data`)
-- **Frontend:**
-  - Angular **20.3.x** (standalone components, sin `NgModule`)
-  - Bootstrap 5.3.8 + bootstrap-icons 1.13.1
-  - RxJS 7.8, TypeScript 5.9.2
-  - Karma/Jasmine para tests (solo specs por defecto, sin tests reales escritos)
-
----
-
-## 2. Backend
-
-### 2.1 Estructura de carpetas
+### 3.1 Estructura
 
 ```
 backend/src/main/java/com/instituto/api/
 ├── ApiApplication.java        # punto de entrada
-├── config/
-│   └── CorsConfig.java
-├── controller/                # capa REST (7 controllers)
-├── entity/                    # entidades JPA (9 entidades)
-├── repository/                # interfaces Spring Data JPA (9 repos)
-└── service/                   # lógica de negocio (6 services)
+├── controller/                # 10 controllers REST + GlobalExceptionHandler
+├── dto/                       # records de auth: LoginRequest/Response, InvitacionRequest, ConfigurarCuentaRequest
+├── entity/                    # 11 entidades JPA
+├── repository/                # 11 interfaces Spring Data JPA
+├── security/                  # SecurityConfig, JwtService, PasswordMigrationRunner
+└── service/                   # 8 services
 ```
 
-### 2.2 Punto de entrada
-
-`ApiApplication.java` — clase estándar `@SpringBootApplication` con `SpringApplication.run(...)`. Sin configuración adicional (sin `CommandLineRunner`, sin beans custom fuera de `CorsConfig`).
-
-### 2.3 Configuración
-
-- `application.properties`: conexión a PostgreSQL (`jdbc:postgresql://localhost:5432/IER`), usuario y **contraseña en texto plano** dentro del archivo versionable.
-- `spring.jpa.hibernate.ddl-auto=none` — Hibernate **no** gestiona el esquema; las tablas se crean/mantienen manualmente en PostgreSQL (pgAdmin, según comentarios del código).
-- `spring.jpa.show-sql=true` — logs de SQL activados (útil en dev, ruidoso/inseguro en prod).
-- No existe `application-dev.properties` / `application-prod.properties` ni perfiles Spring (`spring.profiles.active`). Una sola configuración para todos los entornos.
-
-### 2.4 Módulos y entidades
+### 3.2 Entidades
 
 | Entidad | Tabla | Relaciones | Notas |
 |---|---|---|---|
-| `Usuario` | `users` | `@ManyToOne` → `Rol` | login: `username`, `password` (texto plano, sin hash — ver §9), `enable` |
-| `Rol` | `roles` | — | columna `name` mapeada a campo `nombre` |
-| `Investigador` | `investigadores` | `@OneToOne` → `Usuario` | perfil de investigador, se autogenera al registrar un `Usuario` con rol id `4` |
+| `Usuario` | `users` | `@ManyToOne` → `Rol` | password BCrypt (WRITE_ONLY en JSON), `enable`, `token_invitacion` + `fecha_expiracion_token` (nunca serializados) |
+| `Rol` | `roles` | — | rol id 4 = INVESTIGADOR (convención existente) |
+| `Investigador` | `investigadores` | `@OneToOne` → `Usuario` | perfil creado automáticamente al invitar/registrar rol 4 |
 | `Laboratorio` | `laboratorios` | `@ManyToOne` → `Investigador` (encargado) | |
-| `Proyecto` | `proyectos` | `@ManyToMany` → `Investigador` (tabla puente `proyecto_investigadores`) | campo `esDestacado` para destacar proyectos en home |
-| `Actividad` | `actividades` | — | CRUD simple, sin service (el controller usa el repository directo) |
-| `Componente` | `componentes` | — | CRUD simple, sin service |
-| `Contacto` | `contacto` | — | formulario de contacto público, `fechaEnvio` autogenerado en `@PrePersist` |
-| `Auditoria` | `auditoria` | — | registrado por `AuditoriaService`, pero **sin controller** que lo exponga (no alcanzable vía HTTP) |
+| `Componente` | `componentes` | `@ManyToOne` → `Laboratorio` (**obligatorio** vía `@NotNull`) | materiales de cada laboratorio |
+| `Proyecto` | `proyectos` | `@ManyToMany` → `Investigador` | `esDestacado` para el home |
+| `ReservaLaboratorio` | `reservas_laboratorio` | `@ManyToOne` → `Laboratorio`, `Investigador` | fecha + hora_inicio/hora_fin; sin traslapes por laboratorio/día |
+| `Aviso` | `avisos` | `@ManyToOne` → `Usuario` (autor) | autor = admin autenticado, asignado por el servidor |
+| `Actividad` | `actividades` | — | |
+| `Contacto` | `contacto` | — | dispara notificación SMTP al guardarse |
+| `Auditoria` | `auditoria` | — | `accion`, `entidad`, `entidad_id`, `updated_by` (usuario del JWT), `created_at` |
 
-### 2.5 Endpoints expuestos
+### 3.3 Endpoints y matriz de roles
 
-| Recurso | Método | Ruta | Descripción |
-|---|---|---|---|
-| Actividades | GET/POST/PUT/DELETE | `/api/actividades`, `/{id}` | CRUD directo contra `ActividadRepository` (sin capa service) |
-| Componentes | GET/POST/PUT/DELETE | `/api/componentes`, `/{id}` | CRUD directo contra `ComponenteRepository` (sin capa service) |
-| Contacto | POST | `/api/contacto` | Guarda mensaje de contacto |
-| Investigadores | GET/GET/POST/PUT/DELETE | `/api/investigadores`, `/{id}` | Vía `InvestigadorService` |
-| Laboratorios | GET/GET/POST/PUT/DELETE | `/api/laboratorios`, `/{id}` | Vía `LaboratorioService`, resuelve `encargado` por id |
-| Proyectos | GET/POST/PUT/DELETE | `/api/proyectos`, `/{id}` | Vía `ProyectoService`; tiene `@CrossOrigin("*")` propio además del CORS global |
-| Usuarios | GET/GET/POST/DELETE | `/api/usuarios`, `/{username}` | Registro crea perfil de `Investigador` automáticamente si `rol.id == 4` |
+| Ruta | GET | POST | PUT | DELETE |
+|---|---|---|---|---|
+| `/api/auth/login` | — | público | — | — |
+| `/api/auth/invitaciones` | — | **Admin** | — | — |
+| `/api/auth/invitaciones/{token}` | público (validar) | — | — | — |
+| `/api/auth/configurar-cuenta` | — | público (con token) | — | — |
+| `/api/avisos` | público | Admin | Admin | Admin |
+| `/api/proyectos` (+`/destacados`) | público | Admin | Admin | Admin |
+| `/api/laboratorios` | público | Admin | Admin | Admin |
+| `/api/investigadores` (`?area=`) | público | Admin | Admin **o el propio investigador** | Admin |
+| `/api/investigadores/mi-perfil` | Investigador | — | — | — |
+| `/api/componentes` (`?laboratorioId=`) | público | Admin | Admin | Admin |
+| `/api/reservas` (`?investigadorId=`) | público | Admin + Investigador | — | Admin + Investigador (solo las propias) |
+| `/api/actividades` | público | Admin | Admin | Admin |
+| `/api/contacto` | — | público (guarda + email) | — | — |
+| `/api/usuarios` | Admin | Admin | — | Admin |
+| `/api/auditoria` | Admin | — | — | — |
 
-No hay endpoint de **login** (`/login`, `/auth`, etc.) ni de recuperación de contraseña. No hay endpoint que exponga `Rol` ni `Auditoria` vía HTTP.
+"Admin" acepta roles llamados `ADMIN` o `ADMINISTRADOR` (el nombre del rol en BD se convierte a autoridad `ROLE_<NOMBRE>` en mayúsculas).
 
-### 2.6 Seguridad, autenticación, JWT, CORS
-
-- **No hay Spring Security en el classpath** (no está en `pom.xml`). No hay filtros de autenticación, no hay JWT, no hay sesiones, no hay roles aplicados a nivel de endpoint.
-- Cualquier cliente puede llamar a cualquier endpoint sin autenticarse.
-- **CORS:** configurado en `CorsConfig.java` (global, permite `http://localhost:4200`, métodos GET/POST/PUT/DELETE/OPTIONS, todos los headers) + un `@CrossOrigin("*")` adicional y redundante solo en `ProyectoController`.
-- `UsuarioService.registrarUsuario` guarda la contraseña **tal cual llega en el body**, sin hashear (ver `Usuario.password`).
-
-### 2.7 Flujo de una petición (ejemplo: crear un proyecto)
+### 3.4 Flujo de una petición autenticada
 
 ```
-Cliente (Angular, futuro)
-   │  POST /api/proyectos  { titulo, descripcion, ... }
-   ▼
-DispatcherServlet (Spring MVC)
-   │  aplica CorsConfig (valida origin)
-   ▼
-ProyectoController.crear(@RequestBody Proyecto)
-   │  deserializa JSON → entidad Proyecto (Jackson)
-   ▼
-ProyectoService.guardar(proyecto)
-   ▼
-ProyectoRepository.save(proyecto)   (Spring Data JPA)
-   │  Hibernate ejecuta INSERT (ddl-auto=none, tabla ya existe)
-   ▼
-PostgreSQL (bd "IER")
-   ▲  fila insertada, PK autogenerada (IDENTITY)
-   │
-ProyectoService retorna la entidad guardada
-   │
-ProyectoController envuelve en ResponseEntity con 201 CREATED
-   ▼
-Cliente recibe JSON de vuelta
+Cliente Angular ── Authorization: Bearer <JWT> ──▶ SecurityFilterChain
+  │ CORS (origins de APP_CORS_ORIGINS) → decodificación JWT (HS256, JWT_SECRET)
+  │ claims: sub, userId, rol, investigadorId → autoridad ROLE_<ROL>
+  ▼
+@PreAuthorize del controller → @Valid sobre el body → Service
+  │ (mutaciones de proyecto/laboratorio/perfil → AuditoriaService.registrar)
+  ▼
+Repository (JPA) → PostgreSQL → respuesta JSON
+  │ errores → GlobalExceptionHandler: 400 validación, 401 credenciales,
+  │           404 no existe, 409 conflicto (ej. traslape de reserva)
 ```
-
-Nota: no hay DTOs — las entidades JPA se serializan/deserializan directamente en los controllers (sin capa de mapeo, sin validación con `@Valid`/Bean Validation).
 
 ---
 
-## 3. Frontend
+## 4. Frontend
 
-### 3.1 Estado actual: **scaffold inicial**
+### 4.1 Capa core (`src/app/core/`)
 
-El frontend está en una etapa muy temprana. Es esencialmente el resultado de `ng generate` sin lógica de negocio añadida:
+- `models.ts` — interfaces espejo de las entidades.
+- `auth.service.ts` — login, token en `localStorage` (`ier_token`), decodifica el payload del JWT (rol, userId, investigadorId, expiración); getters `isAdmin` / `isInvestigador`.
+- `api.service.ts` — todas las llamadas HTTP al backend (base `http://localhost:8080/api`).
+- `auth.interceptor.ts` — adjunta `Authorization: Bearer` a toda petición.
+- `guards.ts` — `authGuard`, `adminGuard`, `investigadorGuard` (redirigen a `/login`).
 
-- No existe **ningún servicio HTTP** (`HttpClient` no está provisto en `app.config.ts`, solo el router).
-- No hay carpeta `services/`, `models/`, `guards/`, `interceptors/` ni `environments/`.
-- No hay manejo de autenticación, tokens, `localStorage`/`sessionStorage`.
-- No hay formularios (`ReactiveFormsModule`/`FormsModule` no importados en ningún componente).
-- Los componentes de página (`home`, `quienes-somos`) solo contienen el HTML placeholder generado por Angular CLI (`<p>home works!</p>`).
+### 4.2 Rutas
 
-### 3.2 Estructura
+| Ruta | Componente | Acceso |
+|---|---|---|
+| `/` | Home: avisos + proyectos destacados (con "Ver más/menos") | público |
+| `/quienes-somos` | página institucional (placeholder) | público |
+| `/laboratorios` | catálogo; al seleccionar: descripción, encargado y materiales | público |
+| `/investigadores` | listado con filtros "Agua" / "Energía", proyectos vinculados | público |
+| `/calendario` | vistas mes/semana/día de reservas de laboratorios | público |
+| `/contacto` | formulario; valida que el correo sea `@gmail.com` | público |
+| `/login` | autenticación; redirige según rol | público |
+| `/configurar-cuenta?token=` | activación de cuenta invitada (valida token, fija contraseña) | público con token |
+| `/panel` | panel investigador: editar su perfil, agendar/cancelar sus reservas | rol INVESTIGADOR |
+| `/admin` | panel admin: invitaciones, CRUD de avisos/proyectos/laboratorios/componentes, edición de perfiles, visor de auditoría | rol ADMIN |
 
-```
-frontend/src/app/
-├── app.ts / app.html / app.css   # componente raíz
-├── app.config.ts                 # ApplicationConfig: providers (router)
-├── app.routes.ts                 # rutas
-├── components/
-│   ├── navbar/   # navegación con RouterLink
-│   └── footer/   # placeholder vacío
-└── pages/
-    ├── home/           # placeholder
-    └── quienes-somos/  # placeholder
-```
-
-### 3.3 Rutas (`app.routes.ts`)
-
-| Path | Componente |
-|---|---|
-| `/` | `HomeComponent` |
-| `/quienes-somos` | `QuienesSomosComponent` |
-| `**` | redirect a `/` |
-
-### 3.4 Componentes
-
-- `AppComponent` (raíz): monta `<app-navbar>`, `<router-outlet>`, `<app-footer>`.
-- `NavbarComponent`: navegación Bootstrap con `routerLink`/`routerLinkActive` a Inicio y Quiénes Somos.
-- `FooterComponent`, `HomeComponent`, `QuienesSomosComponent`: contenido placeholder sin lógica.
-
-### 3.5 Librerías usadas
-
-Bootstrap 5 + Bootstrap Icons para estilos (no se pudo confirmar si están importados en `angular.json`/`styles.css` — **no verificado en detalle**, requeriría revisar `angular.json` `styles` array).
+Formularios: template-driven (`FormsModule`/`ngModel`) con validación required/pattern/minlength de HTML5 + Angular. Estilos: Bootstrap (cargado en `angular.json`).
 
 ---
 
-## 4. Comunicación Frontend ↔ Backend
-
-**Estado real: no implementada todavía.** El backend expone endpoints REST funcionales, pero el frontend no tiene ningún código que los consuma (sin `HttpClient`, sin servicios, sin fetch). El único vínculo hoy es la configuración de CORS en el backend, que anticipa que el frontend correrá en `http://localhost:4200`.
-
-Diagrama de cómo **debería** fluir una vez se implemente el consumo (basado en los endpoints ya existentes):
+## 5. Comunicación Frontend ↔ Backend
 
 ```mermaid
 sequenceDiagram
     participant U as Usuario
-    participant F as Angular (localhost:4200)
-    participant B as Spring Boot (backend)
+    participant F as Angular (:4200)
+    participant B as Spring Boot (:8080)
     participant D as PostgreSQL (IER)
+    participant M as SMTP (Gmail)
 
-    U->>F: Navega / interactúa
-    Note over F: HOY: no hay HttpClient ni servicios<br/>que llamen al backend
-    F-->>B: (futuro) HTTP fetch/HttpClient a /api/...
-    B->>B: CorsConfig valida origin (localhost:4200)
-    B->>B: Controller recibe request
-    B->>B: Service aplica lógica
-    B->>D: Repository (JPA) ejecuta SQL
-    D-->>B: Resultado
-    B-->>F: JSON response
-    F-->>U: Actualiza la vista
+    U->>F: Inicia sesión
+    F->>B: POST /api/auth/login {username, password}
+    B->>D: SELECT users + BCrypt.matches
+    B-->>F: {token JWT, rol, userId, investigadorId}
+    F->>F: localStorage('ier_token')
+
+    U->>F: Acción protegida (ej. crear aviso)
+    F->>B: POST /api/avisos + Authorization: Bearer
+    B->>B: valida JWT + @PreAuthorize ROLE_ADMIN + @Valid
+    B->>D: INSERT aviso (autor = userId del JWT)
+    B-->>F: 201 + JSON
+
+    Note over B,M: Flujos con correo
+    B->>M: invitación (enlace /configurar-cuenta?token=...)
+    B->>M: notificación de mensaje de contacto
 ```
 
-No hay autenticación ni manejo de errores estandarizado en ningún lado del flujo (sin interceptor HTTP en Angular, sin `@ExceptionHandler`/`@ControllerAdvice` en Spring).
+Manejo de errores: el backend responde `{"mensaje": "..."}` con el código HTTP correspondiente y el frontend lo muestra en alertas (`e.error?.mensaje`).
 
 ---
 
-## 5. Base de datos
+## 6. Base de datos
 
-Motor: **PostgreSQL**, base de datos `IER`. El esquema no se gestiona desde el código (`ddl-auto=none`): las tablas existen ya en la base de datos y las entidades JPA están mapeadas para calzar con ellas. No se pudo inspeccionar el esquema real en PostgreSQL (no hay scripts `.sql` en el repo) — el diagrama de abajo se infiere únicamente de las anotaciones JPA en las entidades.
+Motor PostgreSQL, BD `IER`. Con `ddl-auto=update` Hibernate **agrega** las tablas/columnas nuevas (reservas_laboratorio, avisos, token_invitacion, etc.) sin tocar las existentes. Diagrama inferido de las entidades JPA:
 
 ```mermaid
 erDiagram
     ROLES ||--o{ USERS : "role_id"
     USERS ||--o| INVESTIGADORES : "usuario_id"
+    USERS ||--o{ AVISOS : "autor_id"
     INVESTIGADORES ||--o{ LABORATORIOS : "encargado_id"
     INVESTIGADORES }o--o{ PROYECTOS : "proyecto_investigadores"
+    LABORATORIOS ||--o{ COMPONENTES : "laboratorio_id"
+    LABORATORIOS ||--o{ RESERVAS_LABORATORIO : "laboratorio_id"
+    INVESTIGADORES ||--o{ RESERVAS_LABORATORIO : "investigador_id"
 
-    ROLES {
-        bigint id PK
-        string name UK
-    }
     USERS {
         bigint id PK
         string username UK
-        string password
+        string password "BCrypt"
         boolean enable
-        timestamp created_at
+        string token_invitacion
+        timestamp fecha_expiracion_token
         bigint role_id FK
     }
-    INVESTIGADORES {
+    RESERVAS_LABORATORIO {
         bigint id PK
-        string nombre
-        string area
-        string especialidad
-        string grado
-        string bio
-        string biografia
-        string foto_url
-        string correo_institucional
-        timestamp updated_at
-        bigint usuario_id FK
-    }
-    LABORATORIOS {
-        bigint id PK
-        string nombre
-        string descripcion
-        string imagen_url
-        timestamp updated_at
-        bigint encargado_id FK
-    }
-    PROYECTOS {
-        bigint id PK
-        string titulo
-        string descripcion
-        string estado
-        boolean es_destacado
-        string imagen_url
-        bigint created_by
-        timestamp created_at
-    }
-    ACTIVIDADES {
-        bigint id PK
-        string titulo
         date fecha
-        string descripcion
+        time hora_inicio
+        time hora_fin
+        bigint laboratorio_id FK
+        bigint investigador_id FK
     }
-    COMPONENTES {
+    AVISOS {
         bigint id PK
-        string nombre
-        string descripcion
-        string tipo
-    }
-    CONTACTO {
-        bigint id PK
-        string nombre
-        string email
-        string asunto
-        string mensaje
-        timestamp fecha_envio
+        string titulo
+        text contenido
+        timestamp fecha_publicacion
+        string imagen_url
+        bigint autor_id FK
     }
     AUDITORIA {
         bigint id PK
         timestamp created_at
-        string bio
-        boolean destacado
+        string accion
+        string entidad
+        bigint entidad_id
         bigint updated_by
+    }
+    COMPONENTES {
+        bigint id PK
+        string nombre
+        string tipo
+        bigint laboratorio_id FK
     }
 ```
 
-`ACTIVIDADES`, `COMPONENTES`, `CONTACTO` y `AUDITORIA` no tienen relaciones declaradas hacia otras entidades en el código Java (tablas independientes desde el punto de vista de JPA).
-
-### CRUD por entidad
-
-- **Actividad, Componente:** CRUD completo (GET/POST/PUT/DELETE), implementado directamente en el controller sin service intermedio.
-- **Contacto:** solo POST (crear mensaje). No hay GET para listarlos ni panel de administración — **no verificado si existe en otro lugar**.
-- **Investigador, Laboratorio, Proyecto, Usuario:** CRUD vía capa service.
-- **Auditoria, Rol:** tienen service/repository pero **sin controller** — no accesibles vía HTTP hoy.
+(Se omiten en el diagrama las tablas sin cambios: `proyectos`, `laboratorios`, `investigadores`, `actividades`, `contacto`, `roles`.)
 
 ---
 
-## 6. Flujo del sistema
+## 7. Flujos del sistema
 
-Ejemplo — registro de un investigador (único flujo con lógica de negocio no trivial encontrado):
+### Invitación de investigador (Admin → Investigador)
 
 ```
-Cliente envía POST /api/usuarios con { username, password, rol: { id: 4 }, ... }
-   ↓
-UsuarioController.registrar()
-   ↓
-UsuarioService.registrarUsuario() [ @Transactional ]
-   ↓
-1. Guarda el Usuario en tabla users
-   ↓
-2. Si usuario.rol.id == 4 (INVESTIGADOR):
-   crea un Investigador vacío, vinculado al usuario, con nombre = username
-   ↓
-3. Guarda el Investigador en tabla investigadores
-   ↓
-Retorna el Usuario creado (sin el investigador embebido en la respuesta)
+Admin (panel /admin, pestaña Invitaciones) envía nombre + correo
+  ↓  POST /api/auth/invitaciones (ROLE_ADMIN)
+Backend crea Usuario inactivo (password placeholder BCrypt, rol 4)
+  + token UUID con expiración 48h + perfil Investigador vinculado
+  ↓
+MailService envía correo con enlace  <frontend>/configurar-cuenta?token=<UUID>
+  (si SMTP no está configurado, el enlace queda en el log del servidor)
+  ↓
+Investigador abre el enlace → GET /api/auth/invitaciones/{token} (valida vigencia)
+  ↓
+Formulario de contraseña (mín. 8, confirmación) → POST /api/auth/configurar-cuenta
+  ↓
+Backend: password BCrypt, enable=true, token eliminado → puede iniciar sesión
 ```
 
-El resto de los flujos (Actividad, Componente, Laboratorio, Proyecto, Contacto) son operaciones CRUD directas sin lógica adicional relevante.
+### Reserva de laboratorio
 
-**Flujo de login:** no existe. No hay controlador, servicio ni lógica de verificación de credenciales en ningún punto del backend. `UsuarioController.buscarPorUsername` devuelve el usuario completo (incluida la contraseña) dado un username, pero no valida ninguna contraseña.
+```
+Investigador (o admin) en su panel → selecciona laboratorio, fecha, hora inicio/fin
+  ↓  POST /api/reservas (JWT)
+ReservaService: hora_fin > hora_inicio → busca reservas del mismo lab y día
+  → si algún rango se traslapa → 409 "El laboratorio ya está reservado en ese horario"
+  → investigador no-admin: la reserva se asigna a su propio perfil (claim del JWT)
+  ↓
+Estudiantes consultan /calendario (GET público) y ven los horarios ocupados
+```
+
+### Contacto
+
+```
+Visitante llena el formulario (email validado como @gmail.com en el cliente,
+@Email en el servidor) → POST /api/contacto → se guarda en BD
+→ MailService notifica al correo del departamento (APP_MAIL_CONTACTO)
+```
+
+### Auditoría
+
+Toda mutación de **proyectos, laboratorios y perfiles de investigadores** registra automáticamente en `auditoria`: acción (CREAR/ACTUALIZAR/ELIMINAR), entidad, id y el `userId` del JWT (vía `SecurityContextHolder`). El admin la consulta en su panel.
 
 ---
 
-## 7. Dependencias
+## 8. Dependencias
 
-### Backend (`pom.xml`)
+### Backend (añadidas en esta fase)
 
 | Dependencia | Uso |
 |---|---|
-| `spring-boot-starter-actuator` | endpoints de monitoreo/salud (`/actuator/*`) |
-| `spring-boot-starter-data-jpa` | ORM (Hibernate) + Spring Data repositories |
-| `spring-boot-starter-webmvc` | REST controllers, servlet container embebido |
-| `postgresql` (runtime) | driver JDBC para PostgreSQL |
-| `lombok` (optional) | genera getters/setters/equals/hashCode vía `@Data` |
-| `spring-boot-starter-data-jpa-test`, `spring-boot-starter-webmvc-test` (test) | soporte de testing |
+| `spring-boot-starter-security` | filtros de seguridad, BCrypt, method security |
+| `spring-boot-starter-oauth2-resource-server` | emisión/validación de JWT (Nimbus, HS256) |
+| `spring-boot-starter-validation` | Bean Validation (JSR-380): `@Valid`, `@NotBlank`, `@Email`… |
+| `spring-boot-starter-mail` | envío SMTP (invitaciones y notificaciones de contacto) |
 
-No hay Spring Security, no hay librería JWT (`jjwt`, `nimbus-jose-jwt`, etc.), no hay validación (`spring-boot-starter-validation`).
+(Ya existentes: data-jpa, webmvc, actuator, postgresql, lombok.)
 
-### Frontend (`package.json`)
+### Frontend
 
-| Dependencia | Uso |
-|---|---|
-| `@angular/core`, `common`, `compiler`, `platform-browser`, `router`, `forms` | framework Angular base |
-| `bootstrap`, `bootstrap-icons` | estilos UI |
-| `rxjs` | requerido por Angular (observables) |
-| `zone.js` | detección de cambios de Angular |
-| `tslib` | helpers de TypeScript compilado |
-
-Sin `@angular/common/http` explícito en dependencias (viene incluido en `@angular/common`, pero no está provisto en `main.ts`).
+Sin dependencias nuevas: Angular (incluye HttpClient y FormsModule), Bootstrap, RxJS. El calendario es un componente propio (sin librería externa).
 
 ---
 
-## 8. Variables de entorno / configuración
+## 9. Variables de entorno
 
-No se usan variables de entorno (`System.getenv`, `${VAR}` en properties) — toda la configuración del backend está **hardcodeada** en `application.properties`:
-
-| Clave | Para qué sirve | Dónde se usa |
+| Variable | Para qué sirve | Dónde se usa |
 |---|---|---|
-| `spring.datasource.url` | conexión JDBC a PostgreSQL | autoconfiguración de Spring Data JPA |
-| `spring.datasource.username` / `password` | credenciales de BD | ídem |
-| `spring.datasource.driver-class-name` | driver JDBC | ídem |
-| `spring.jpa.hibernate.ddl-auto` | controla si Hibernate modifica el esquema (`none` = no lo toca) | Hibernate |
-| `spring.jpa.show-sql` / `format_sql` | logging de SQL en consola | Hibernate |
+| `IER_DB_URL` | URL JDBC (default `jdbc:postgresql://localhost:5432/IER`) | datasource |
+| `IER_DB_USERNAME` | usuario de BD (default `postgres`) | datasource |
+| `IER_DB_PASSWORD` | contraseña de BD (default `jazmin`, la del contenedor Docker de desarrollo; **en producción definirla siempre**) | datasource |
 
-Frontend: no hay carpeta `environments/` ni variables de build-time detectadas.
+Se usan nombres `IER_DB_*` (no `SPRING_DATASOURCE_*`) porque en esta máquina existen variables globales `SPRING_DATASOURCE_*` de otro proyecto y en Spring las variables de entorno tienen prioridad sobre `application.properties`. Por eso el backend se arranca con `backend/run.sh`, que neutraliza esas variables globales antes de lanzar `mvnw spring-boot:run`.
+| `JWT_SECRET` | clave HS256 (mín. 32 bytes; hay default solo para desarrollo) | `SecurityConfig` |
+| `APP_FRONTEND_URL` | base del enlace de invitación (default `http://localhost:4200`) | `MailService` |
+| `APP_CORS_ORIGINS` | origins permitidos, separados por coma | `SecurityConfig` |
+| `APP_MAIL_CONTACTO` | correo del departamento que recibe los mensajes de contacto | `MailService` |
+| `SPRING_MAIL_HOST` / `SPRING_MAIL_PORT` | servidor SMTP (default Gmail `smtp.gmail.com:587`) | mail |
+| `SPRING_MAIL_USERNAME` / `SPRING_MAIL_PASSWORD` | credenciales SMTP (App Password de Gmail) | mail |
 
----
-
-## 9. Seguridad
-
-### Estado actual
-- **Sin autenticación:** todos los endpoints son públicos.
-- **Sin autorización:** no hay roles aplicados a nivel de endpoint (aunque existe la entidad `Rol`, no se usa para restringir acceso).
-- **Contraseñas en texto plano:** `Usuario.password` se guarda sin hash (ni BCrypt ni ningún otro).
-- **Credenciales de BD versionadas en texto plano** en `application.properties`.
-- **CORS abierto a un solo origin** en `CorsConfig`, pero además hay un `@CrossOrigin("*")` en `ProyectoController` que permite **cualquier origen** solo para ese recurso — inconsistente con el resto de la API.
-- **Sin validación de entrada:** los controllers deserializan `@RequestBody` directo a entidades JPA sin `@Valid`/Bean Validation, por lo que se puede enviar cualquier payload (incluyendo relaciones anidadas) sin control.
-- **Sin manejo global de excepciones:** errores de negocio (`RuntimeException` en `ProyectoService`, `LaboratorioService`) no están mapeados a códigos HTTP específicos — Spring devuelve 500 genérico.
-
-### Recomendaciones (mínimas, priorizadas)
-1. Agregar `spring-boot-starter-security` + hash de contraseñas (BCrypt) antes de exponer el registro de usuarios a producción.
-2. Mover credenciales de BD a variables de entorno (`${DB_PASSWORD}`) y sacar `application.properties` con secretos del control de versiones.
-3. Unificar la política de CORS (quitar el `@CrossOrigin("*")` suelto en `ProyectoController`).
-4. Añadir `@Valid` + Bean Validation en los `@RequestBody` de los controllers.
-5. Añadir un `@ControllerAdvice` para mapear excepciones a respuestas HTTP consistentes (404/400) en lugar de 500 genérico.
+Sin credenciales SMTP el sistema funciona: los correos fallan de forma controlada y su contenido (incluido el enlace de invitación) queda en el log del backend.
 
 ---
 
-## 10. Problemas encontrados
+## 10. Seguridad
 
-Problemas ya corregidos en la limpieza del 2026-07-03 (ver [§0](#0-limpieza-y-reorganización-2026-07-03)) tachados; el resto sigue pendiente.
+**Implementado:**
+- Contraseñas **BCrypt**; migración automática e idempotente de las que estuvieran en texto plano (`PasswordMigrationRunner`).
+- **JWT HS256** con expiración (8h, configurable); claims: `sub`, `userId`, `rol`, `investigadorId`.
+- **Autorización por rol** con `@PreAuthorize` en cada endpoint de mutación (matriz en §3.3); el investigador solo puede editar su propio perfil y cancelar sus propias reservas (verificación por claims).
+- `password` con `WRITE_ONLY` y token de invitación con `@JsonIgnore`: nunca salen en las respuestas JSON.
+- **CORS** restringido a `APP_CORS_ORIGINS` (se eliminó el `@CrossOrigin("*")` que había en proyectos).
+- **Validación de entrada** (`@Valid` + JSR-380) en todos los `@RequestBody`.
+- Credenciales de BD y secretos **fuera del código** (variables de entorno).
+- Registro por invitación: el admin nunca conoce ni fija la contraseña del investigador.
 
-- ~~`app.config.ts` duplicado con `app.ts`~~ — **corregido**: ahora `app.config.ts` contiene el `ApplicationConfig` real.
-- ~~`TestController` fuera de `controller/`, endpoint de diagnóstico suelto~~ — **corregido**: eliminado.
-- ~~Carpetas `api/api` anidadas y nombres poco descriptivos~~ — **corregido**: renombradas a `backend`/`frontend`.
-- ~~`target/`, `.angular/cache` y `.github/java-upgrade` (logs de una herramienta externa) presentes en el árbol~~ — **corregido**: eliminados.
-- ~~`<groupId>com.instituto </groupId>` con espacio final en `pom.xml`~~ — **corregido**.
-- **Falta de capa Service en `ActividadController` y `ComponenteController`:** acceden al repository directamente, inconsistente con el resto de controllers que sí pasan por un service. *(pendiente, requiere tocar lógica de negocio, fuera del alcance de una limpieza de estructura)*
-- **`AuditoriaService` y `RolService` sin controller:** lógica implementada pero inalcanzable vía HTTP. *(pendiente)*
-- **Manejo de errores con `RuntimeException` genérica** en `ProyectoService.actualizar` y `LaboratorioService.actualizar` en vez de excepciones específicas o `ResponseStatusException`. *(pendiente)*
-- **Comentarios de depuración/parche dejados en el código** (p. ej. `// El import que faltaba`, `// Corregido: Asegúrate de que no tenga errores de dedo`, `// AJUSTE: He puesto el guion bajo final...`) — indican iteración manual rápida sin limpieza posterior. *(pendiente, no se tocó el código de negocio en esta pasada)*
-- **Frontend sin ninguna integración real:** todas las páginas son placeholders (`<p>home works!</p>`), no hay consumo de la API — el "producto" visible hoy es solo el andamiaje de Angular CLI. *(pendiente, es una feature nueva, no una limpieza)*
-- **`frontend/` tiene su propio repositorio git anidado** (un commit inicial de `ng new`), mientras que la raíz `proyecto_instituto/` no es un repo git. Si se quiere versionar todo el proyecto junto, hay que decidir si se conserva ese `.git` interno o se consolida en un único repo en la raíz — **no se tocó, es una decisión del usuario, no algo a limpiar unilateralmente**.
+**Recomendaciones futuras:** refresh tokens o expiración corta + renovación; rate limiting en `/api/auth/login`; HTTPS obligatorio en producción; rotación de `JWT_SECRET`.
 
 ---
 
-## 11. Resumen para un nuevo desarrollador
+## 11. Problemas conocidos / pendientes
 
-**¿Qué hace el proyecto?** Es el sitio/sistema de gestión de un instituto de investigación (IER): expone datos de investigadores, laboratorios, proyectos, actividades, componentes, y un formulario de contacto. Backend REST completo para estas entidades; frontend apenas iniciado (solo navegación y páginas vacías).
-
-**¿Cómo está organizado?**
-- `backend/` — backend Spring Boot. Todo el código Java vive bajo `src/main/java/com/instituto/api/`, separado en `controller/`, `service/`, `repository/`, `entity/`.
-- `frontend/` — frontend Angular standalone, bajo `src/app/`, separado en `pages/` (rutas/vistas) y `components/` (reutilizables, navbar/footer).
-
-**¿Dónde modificar funcionalidades existentes?**
-- Reglas de negocio de una entidad → su clase en `service/`.
-- Forma de la respuesta HTTP o rutas → su clase en `controller/`.
-- Columnas/relaciones de BD → la entidad correspondiente en `entity/` (recordar que el esquema real vive en PostgreSQL, no lo genera Hibernate).
-
-**¿Cómo agregar un endpoint nuevo?**
-1. Si es una entidad nueva: crear `Entity` (`@Entity`, mapeo a tabla existente), `Repository` (`extends JpaRepository`), `Service` (lógica), `Controller` (`@RestController` + `@RequestMapping`).
-2. Seguir el patrón ya usado por `InvestigadorController`/`InvestigadorService` como referencia (es el más completo).
-
-**¿Cómo agregar una pantalla nueva en el frontend?**
-1. `ng generate component pages/nombre-pantalla`.
-2. Agregar la ruta en `src/app/app.routes.ts`.
-3. Agregar el link en `navbar.html` si debe ser navegable.
-4. (Pendiente en el proyecto) crear un servicio en `src/app/services/` que use `HttpClient` para consumir el backend — hoy no existe ningún ejemplo de esto en el repo, habría que introducirlo desde cero, incluyendo `provideHttpClient()` en `main.ts`.
-
-**¿Cómo ejecutar el proyecto?**
-- Backend: requiere PostgreSQL corriendo localmente con una base `IER` y las tablas ya creadas manualmente (el proyecto no trae migraciones ni scripts `.sql`). Luego, desde `backend/`: `./mvnw spring-boot:run` (puerto por defecto 8080, no sobreescrito en `application.properties`).
-- Frontend: desde `frontend/`: `npm install` y luego `npm start` (`ng serve`, puerto 4200 por defecto, coincide con el CORS configurado en el backend).
+- **Rol INVESTIGADOR = id 4 hard-coded** (convención heredada de `UsuarioService`); si la tabla `roles` cambia, ajustar `AuthService.ROL_INVESTIGADOR_ID`.
+- Los nombres de rol en BD deben ser `ADMIN`/`ADMINISTRADOR` e `INVESTIGADOR` (se normalizan a mayúsculas para las autoridades). Con otros nombres, ajustar los `@PreAuthorize`.
+- La URL del backend está fija en `frontend/src/app/core/api.service.ts` y `auth.service.ts` (`http://localhost:8080/api`); para producción conviene moverla a `environments/`.
+- `AuditoriaService` conserva los campos legados `bio`/`destacado` de la tabla original (sin uso).
+- `Componente.laboratorio` es `@NotNull` en la API pero nullable en BD para no romper filas previas sin laboratorio; asignarles laboratorio desde el panel admin.
+- El envío real de correos requiere configurar `SPRING_MAIL_USERNAME`/`SPRING_MAIL_PASSWORD` (App Password de Gmail); hasta entonces los enlaces de invitación deben copiarse del log del backend.
+- Los `*.spec.ts` generados por Angular CLI no se actualizaron (el build de producción no los compila).
 
 ---
 
-## 12. Mapa completo del proyecto
+## 12. Guía para un nuevo desarrollador
+
+**Ejecutar el proyecto:**
+```bash
+# Base de datos (contenedor Docker de desarrollo, ya creado en esta máquina)
+docker start ier-postgres        # postgres:16, BD "IER", postgres/jazmin, :5432
+
+# Backend
+cd backend
+./run.sh                         # :8080 — Hibernate crea las tablas/columnas nuevas
+
+# Frontend
+cd frontend
+npm start                        # :4200
+```
+
+**Datos iniciales (ya sembrados en el contenedor):** roles `ADMIN` (id 1) e `INVESTIGADOR` (id 4), y un usuario administrador `admin` / `admin123` (cifrado con BCrypt en el primer arranque). Las contraseñas en texto plano existentes se cifran automáticamente al arrancar.
+
+**Agregar un endpoint:** seguir el patrón Entity → Repository → Service → Controller (ej. completo: `ReservaLaboratorio`/`ReservaService`/`ReservaController`). Mutaciones: `@PreAuthorize` + `@Valid`. Si la ruta es de lectura pública, añadirla a los `permitAll` de `SecurityConfig`.
+
+**Agregar una pantalla:** crear componente standalone en `pages/`, registrar en `app.routes.ts` (con guard si es privada), enlazar en `navbar.html`, y añadir las llamadas HTTP que falten en `core/api.service.ts`.
+
+**Dónde está cada cosa:** reglas de negocio en `service/`; permisos en los controllers (`@PreAuthorize`) y `SecurityConfig`; claims y helpers de sesión en `security/JwtService`; correos en `service/MailService`.
+
+---
+
+## 13. Mapa completo del proyecto
 
 ```
 proyecto_instituto/
-├── PROJECT_CONTEXT.md                # este documento
+├── README.md                         # inicio rápido (BD Docker, backend, frontend)
+├── PROJECT_CONTEXT.md                # esta guía técnica
+├── .gitignore                        # único para todo el repo
+├── backend/                          # API REST Spring Boot (:8080)
+│   ├── pom.xml
+│   ├── run.sh                        # arranque (neutraliza SPRING_DATASOURCE_* globales)
+│   └── src/main/
+│       ├── java/com/instituto/api/
+│       │   ├── ApiApplication.java
+│       │   ├── controller/           # REST + GlobalExceptionHandler
+│       │   │   ├── AuthController, AvisoController, ReservaController,
+│       │   │   ├── AuditoriaController, ProyectoController, LaboratorioController,
+│       │   │   ├── InvestigadorController, ComponenteController,
+│       │   │   └── ActividadController, ContactoController, UsuarioController
+│       │   ├── dto/                  # records de autenticación
+│       │   ├── entity/               # 11 entidades JPA
+│       │   ├── repository/           # Spring Data JPA
+│       │   ├── security/             # SecurityConfig (JWT+CORS+BCrypt),
+│       │   │                         # JwtService, PasswordMigrationRunner
+│       │   └── service/              # Auth, Mail, Reserva, Auditoria,
+│       │                             # Proyecto, Laboratorio, Investigador, Usuario
+│       └── resources/application.properties   # todo configurable por env vars
 │
-├── backend/                          # backend Spring Boot
-│   ├── pom.xml                       # dependencias y build Maven
-│   ├── mvnw, mvnw.cmd                # wrapper de Maven
-│   └── src/
-│       ├── main/
-│       │   ├── java/com/instituto/api/
-│       │   │   ├── ApiApplication.java     # punto de entrada Spring Boot
-│       │   │   ├── config/                  # configuración transversal (CORS)
-│       │   │   ├── controller/               # capa REST (7 controllers)
-│       │   │   ├── entity/                   # entidades JPA / modelo de datos (9)
-│       │   │   ├── repository/                # interfaces Spring Data JPA (9)
-│       │   │   └── service/                   # lógica de negocio (6 services)
-│       │   └── resources/
-│       │       └── application.properties    # config de BD y JPA
-│       └── test/                              # tests (solo el generado por defecto)
-│
-└── frontend/                # frontend Angular (tiene su propio repo git interno, ver §0)
-    ├── angular.json                   # config de build/serve de Angular CLI
-    ├── package.json                   # dependencias npm
-    ├── src/
-    │   ├── main.ts                    # bootstrap de la app standalone
-    │   ├── index.html
-    │   └── app/
-    │       ├── app.ts / app.html / app.css   # componente raíz (shell: navbar + router-outlet + footer)
-    │       ├── app.config.ts          # ApplicationConfig: providers (router)
-    │       ├── app.routes.ts          # definición de rutas
-    │       ├── components/
-    │       │   ├── navbar/            # barra de navegación superior
-    │       │   └── footer/            # pie de página (placeholder)
-    │       └── pages/
-    │           ├── home/              # página de inicio (placeholder)
-    │           └── quienes-somos/     # página institucional (placeholder)
-    └── public/                        # assets estáticos (favicon)
+└── frontend/                         # Angular 20 standalone (:4200)
+    └── src/app/
+        ├── app.config.ts             # provideRouter + provideHttpClient(interceptor JWT)
+        ├── app.routes.ts             # rutas públicas + guards admin/investigador
+        ├── core/                     # models, api.constants (URL del backend),
+        │                             # auth.service, api.service, auth.interceptor, guards
+        ├── components/               # navbar (según sesión/rol), footer
+        └── pages/
+            ├── home/                 # avisos + proyectos destacados
+            ├── laboratorios/         # catálogo + encargado + materiales
+            ├── investigadores/       # filtros Agua/Energía + proyectos vinculados
+            ├── calendario/           # vistas mes/semana/día de reservas
+            ├── contacto/             # formulario con validación @gmail.com
+            ├── login/                # autenticación JWT
+            ├── configurar-cuenta/    # activación por token de invitación
+            ├── panel-investigador/   # mi perfil + mis reservas
+            ├── panel-admin/          # invitaciones, CRUDs, auditoría
+            └── quienes-somos/        # placeholder institucional
 ```
-
----
-
-*Documento generado a partir de una lectura completa del código fuente presente el 2026-07-03. No se ejecutó el proyecto ni se inspeccionó la base de datos real; las relaciones de BD se infirieron de las anotaciones JPA.*

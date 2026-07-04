@@ -10,4 +10,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     
     // Útil para el login o para verificar si un username ya existe
     Optional<Usuario> findByUsername(String username);
+
+    // Flujo de invitación: localizar la cuenta pendiente por su token
+    Optional<Usuario> findByTokenInvitacion(String tokenInvitacion);
 }

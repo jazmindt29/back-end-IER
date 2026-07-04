@@ -2,14 +2,17 @@ package com.instituto.api.controller;
 
 import com.instituto.api.entity.Usuario;
 import com.instituto.api.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/usuarios")
+@PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')") // gestión de cuentas: solo administradores
 public class UsuarioController {
 
     @Autowired
@@ -29,12 +32,11 @@ public class UsuarioController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Registrar un nuevo usuario (Admin o Investigador)
-    // Registrar un nuevo usuario (Admin o Investigador)
+    // Registrar un nuevo usuario (Admin o Investigador) con contraseña cifrada.
+    // Para investigadores es preferible el flujo de invitación (/api/auth/invitaciones)
     @PostMapping
-    public Usuario registrar(@RequestBody Usuario usuario) {
-        // CAMBIO AQUÍ: Usar registrarUsuario para que ejecute la lógica del perfil
-        return service.registrarUsuario(usuario); 
+    public Usuario registrar(@Valid @RequestBody Usuario usuario) {
+        return service.registrarUsuario(usuario);
     }
 
     // Eliminar un usuario por ID

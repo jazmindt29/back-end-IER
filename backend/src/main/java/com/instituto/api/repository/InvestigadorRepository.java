@@ -4,14 +4,14 @@ import com.instituto.api.entity.Investigador;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface InvestigadorRepository extends JpaRepository<Investigador, Long> {
     
-    // Spring generará automáticamente la consulta SQL: 
-    // SELECT * FROM investigadores WHERE area = ?
+    // Filtro público por área técnica ("Agua" / "Energía")
     List<Investigador> findByArea(String area);
-    
-    // Por si acaso quieres buscar por especialidad también
-    List<Investigador> findByEspecialidad(String especialidad);
+
+    // Perfil vinculado a una cuenta de usuario (para los claims del JWT en el login)
+    Optional<Investigador> findByUsuarioId(Long usuarioId);
 }

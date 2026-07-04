@@ -1,6 +1,7 @@
 package com.instituto.api.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -12,6 +13,7 @@ public class Actividad {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String titulo;
     private LocalDate fecha;
     private String descripcion;

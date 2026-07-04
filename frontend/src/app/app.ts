@@ -7,9 +7,6 @@ import { FooterComponent } from './components/footer/footer';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, NavbarComponent, FooterComponent],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  templateUrl: './app.html'
 })
-export class AppComponent {
-  title = 'frontend'; // Agregamos esto para evitar errores
-}
+export class AppComponent {}
