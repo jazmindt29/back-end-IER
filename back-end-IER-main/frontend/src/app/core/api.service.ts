@@ -83,10 +83,4 @@ export class ApiService {
   // --- Administración ---
   getUsuarios(): Observable<Usuario[]> { return this.http.get<Usuario[]>(`${API}/usuarios`); }
   getAuditoria(): Observable<Auditoria[]> { return this.http.get<Auditoria[]>(`${API}/auditoria`); }
-
-  // En ApiService.ts
-guardarMiPerfil(perfil: Investigador): Observable<Investigador> {
-  // En lugar de pasar /api/investigadores/{id}, llamamos al endpoint de sesión
-  return this.http.put<Investigador>(`${API}/investigadores/mi-perfil`, perfil);
-}
 }

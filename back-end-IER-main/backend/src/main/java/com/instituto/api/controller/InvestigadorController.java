@@ -1,10 +1,13 @@
 package com.instituto.api.controller;
 
 import com.instituto.api.entity.Investigador;
+import com.instituto.api.security.JwtService;
 import com.instituto.api.service.InvestigadorService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,50 +16,68 @@ import java.util.List;
 @RequestMapping("/api/investigadores")
 public class InvestigadorController {
 
-    private final InvestigadorService investigadorService;
+    @Autowired
+    private InvestigadorService service;
 
-    public InvestigadorController(InvestigadorService investigadorService) {
-        this.investigadorService = investigadorService;
-    }
-
+    // Público, con filtro opcional por área técnica ("Agua" o "Energía")
     @GetMapping
-    public ResponseEntity<List<Investigador>> listarTodos() {
-        return ResponseEntity.ok(investigadorService.listarTodos());
+    public List<Investigador> listar(@RequestParam(required = false) String area) {
+        return area != null && !area.isBlank()
+                ? service.buscarPorArea(area)
+                : service.listarTodos();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Investigador> buscarPorId(@PathVariable Long id) {
-        return investigadorService.buscarPorId(id)
+    // Perfil del investigador autenticado (para su panel privado)
+    @GetMapping("/mi-perfil")
+    @PreAuthorize("hasRole('INVESTIGADOR')")
+    public ResponseEntity<Investigador> miPerfil() {
+        Long invId = JwtService.investigadorActualId();
+        if (invId == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return service.buscarPorId(invId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/mi-perfil")
-    public ResponseEntity<Investigador> obtenerMiPerfil(Authentication authentication) {
-        String username = authentication.getName();
-        return ResponseEntity.ok(investigadorService.obtenerMiPerfil(username));
-    }
-
-    @PutMapping("/mi-perfil")
-    @PreAuthorize("hasAnyRole('INVESTIGADOR', 'ADMIN')")
-    public ResponseEntity<Investigador> actualizarMiPerfil(
-            Authentication authentication,
-            @RequestBody Investigador datos) {
-        String username = authentication.getName();
-        Investigador guardado = investigadorService.guardarOActualizarMiPerfil(username, datos);
-        return ResponseEntity.ok(guardado);
+    // Público
+    @GetMapping("/{id}")
+    public ResponseEntity<Investigador> buscar(@PathVariable Long id) {
+        return service.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Investigador> crear(@RequestBody Investigador investigador) {
-        return ResponseEntity.ok(investigadorService.guardar(investigador));
+    @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
+    public Investigador crear(@Valid @RequestBody Investigador investigador) {
+        return service.guardar(investigador);
+    }
+
+    // El admin puede editar cualquier perfil; el investigador solo el suyo
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR','INVESTIGADOR')")
+    public ResponseEntity<Investigador> actualizar(@PathVariable Long id, @Valid @RequestBody Investigador detalles) {
+        if (!JwtService.esAdmin() && !id.equals(JwtService.investigadorActualId())) {
+            throw new AccessDeniedException("Solo puedes modificar tu propio perfil");
+        }
+        return service.buscarPorId(id).map(investigador -> {
+            investigador.setNombre(detalles.getNombre());
+            investigador.setArea(detalles.getArea());
+            investigador.setEspecialidad(detalles.getEspecialidad());
+            investigador.setGrado(detalles.getGrado());
+            investigador.setBio(detalles.getBio());
+            investigador.setBiografia(detalles.getBiografia());
+            investigador.setCorreoInstitucional(detalles.getCorreoInstitucional());
+            investigador.setFotoUrl(detalles.getFotoUrl());
+            return ResponseEntity.ok(service.guardar(investigador));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        investigadorService.eliminar(id);
+        service.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 }

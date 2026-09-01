@@ -13,8 +13,5 @@ public interface InvestigadorRepository extends JpaRepository<Investigador, Long
     List<Investigador> findByArea(String area);
 
     // Perfil vinculado a una cuenta de usuario (para los claims del JWT en el login)
-  
-
-    Optional<Investigador> findByUsuarioUsername(String username);
     Optional<Investigador> findByUsuarioId(Long usuarioId);
 }
