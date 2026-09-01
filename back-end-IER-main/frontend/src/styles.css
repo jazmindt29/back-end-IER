@@ -1,0 +1,34 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Layout base: el footer siempre queda pegado al fondo aunque la página sea corta */
+html, body {
+  height: 100%;
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+app-root > main {
+  flex: 1 0 auto;
+  padding-bottom: 2rem;
+}
+
+app-root > app-footer {
+  flex-shrink: 0;
+}
+
+/* Recorte de textos largos con expansión (avisos y proyectos destacados) */
+.texto-recortado {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-img-top.media-cover {
+  height: 180px;
+  object-fit: cover;
+}

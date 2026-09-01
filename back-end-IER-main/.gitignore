@@ -1,0 +1,29 @@
+# ===== Backend (Maven / Spring Boot) =====
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# ===== Frontend (Node / Angular) =====
+node_modules/
+frontend/dist/
+frontend/.angular/
+npm-debug.log
+yarn-error.log
+
+# ===== IDEs y editores =====
+.vscode/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# ===== Claude Code (configuración personal, no compartir) =====
+.claude/settings.local.json
+
+# ===== Secretos y entorno local =====
+.env
+*.local
+
+# ===== Sistema operativo =====
+.DS_Store
+Thumbs.db

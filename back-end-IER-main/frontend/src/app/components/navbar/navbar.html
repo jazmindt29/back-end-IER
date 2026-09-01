@@ -1,0 +1,38 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand fw-bold" routerLink="/">INSTITUTO IER</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+            aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="menuPrincipal">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/quienes-somos" routerLinkActive="active">Quiénes Somos</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/laboratorios" routerLinkActive="active">Laboratorios</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/investigadores" routerLinkActive="active">Investigadores</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/calendario" routerLinkActive="active">Calendario</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/contacto" routerLinkActive="active">Contacto</a></li>
+        @if (auth.isAdmin) {
+          <li class="nav-item"><a class="nav-link" routerLink="/admin" routerLinkActive="active">Panel Admin</a></li>
+        }
+        @if (auth.isInvestigador) {
+          <li class="nav-item"><a class="nav-link" routerLink="/panel" routerLinkActive="active">Mi Panel</a></li>
+        }
+      </ul>
+
+      <div class="d-flex align-items-center gap-3">
+        @if (auth.isLoggedIn) {
+          <span class="navbar-text small">
+            <i class="bi bi-person-circle me-1"></i>{{ auth.username }}
+          </span>
+          <button class="btn btn-outline-light btn-sm" (click)="cerrarSesion()">Cerrar sesión</button>
+        } @else {
+          <a class="btn btn-outline-light btn-sm" routerLink="/login">Iniciar sesión</a>
+        }
+      </div>
+    </div>
+  </div>
+</nav>
