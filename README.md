@@ -15,7 +15,7 @@ front: npm install - npm start
 
 Eso es todo: el script levanta la base de datos en Docker (crea el contenedor si no existe), arranca el backend y espera a que responda, y abre el frontend. `Ctrl+C` detiene backend y frontend (el contenedor de BD queda corriendo). Log del backend: `/tmp/ier-backend.log` (Windows: `%TEMP%\ier-backend.log`).
 
-Abrir <http://localhost:4200>. Usuario administrador de desarrollo: `admin` / `admin123`.
+Abrir <http://localhost:4200>. Usuario administrador de desarrollo: `admin` / 
 
 <details>
 <summary>Levantar cada parte por separado</summary>
