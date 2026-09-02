@@ -41,6 +41,7 @@ public class SecurityConfig {
     @Value("${app.cors.origins}")
     private String corsOrigins;
 
+   
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -101,14 +102,23 @@ public class SecurityConfig {
         return converter;
     }
 
-    @Bean
+   
+     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Arrays.asList(corsOrigins.split(",")));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        
+        // Cambio de seguridad: Especificar cabeceras explícitas en lugar de "*"
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept")); 
+        
+        // LÍNEA FALTANTE: Permitir credenciales para el manejo del token JWT
+        config.setAllowCredentials(true); 
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 }
+

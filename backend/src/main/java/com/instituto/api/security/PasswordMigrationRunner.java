@@ -1,3 +1,4 @@
+
 package com.instituto.api.security;
 
 import com.instituto.api.entity.Usuario;
