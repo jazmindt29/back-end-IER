@@ -9,9 +9,8 @@ Sistema web del instituto: catálogo público de laboratorios, investigadores, p
 
 ## Cómo ejecutarlo
 
-```bash
-./start.sh                                        # Linux / macOS / Git Bash / WSL
-powershell -ExecutionPolicy Bypass -File start.ps1   # Windows (PowerShell o cmd)
+backend: .\mvnw spring-boot:run
+front: npm install - npm start
 ```
 
 Eso es todo: el script levanta la base de datos en Docker (crea el contenedor si no existe), arranca el backend y espera a que responda, y abre el frontend. `Ctrl+C` detiene backend y frontend (el contenedor de BD queda corriendo). Log del backend: `/tmp/ier-backend.log` (Windows: `%TEMP%\ier-backend.log`).
