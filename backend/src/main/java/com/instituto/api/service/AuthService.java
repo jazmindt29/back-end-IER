@@ -22,7 +22,6 @@ import java.util.UUID;
 @Service
 public class AuthService {
 
-    // ponytail: el rol INVESTIGADOR usa el id 4, misma convención que UsuarioService
     private static final long ROL_INVESTIGADOR_ID = 4L;
 
     private final UsuarioRepository usuarioRepository;
@@ -60,19 +59,14 @@ public class AuthService {
         return new LoginResponse(token, usuario.getUsername(), rol, usuario.getId(), investigadorId);
     }
 
-    /**
-     * Flujo de invitación: el admin registra nombre + correo institucional.
-     * Se crea la cuenta inactiva (sin contraseña utilizable), su perfil de
-     * investigador, y se envía por correo el enlace para establecer contraseña.
-     */
     @Transactional
     public void invitarInvestigador(InvitacionRequest request) {
         if (usuarioRepository.findByUsername(request.email()).isPresent()) {
             throw new IllegalArgumentException("Ya existe una cuenta con el correo " + request.email());
         }
+
         Usuario usuario = new Usuario();
         usuario.setUsername(request.email());
-        // Placeholder aleatorio: la columna es NOT NULL y la cuenta inactiva no puede loguearse
         usuario.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
         usuario.setEnable(false);
         usuario.setCreatedAt(LocalDateTime.now());
@@ -92,25 +86,30 @@ public class AuthService {
         mailService.enviarInvitacion(request.email(), request.nombre(), token);
     }
 
-    /** Valida el token de invitación y devuelve la cuenta pendiente asociada. */
     public Usuario validarToken(String token) {
-        Usuario usuario = usuarioRepository.findByTokenInvitacion(token)
-                .orElseThrow(() -> new NoSuchElementException("Token de invitación inválido"));
-        if (usuario.getFechaExpiracionToken() == null
-                || usuario.getFechaExpiracionToken().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("El token de invitación ha expirado");
+        if (token == null || token.isBlank()) {
+            throw new RuntimeException("El token es requerido.");
         }
+
+        Usuario usuario = usuarioRepository.findByTokenInvitacion(token)
+                .orElseThrow(() -> new RuntimeException("El enlace de invitación no es válido."));
+
+        if (usuario.getFechaExpiracionToken() == null || LocalDateTime.now().isAfter(usuario.getFechaExpiracionToken())) {
+            throw new RuntimeException("El enlace de invitación ha expirado.");
+        }
+
         return usuario;
     }
 
-    /** El investigador establece su propia contraseña (BCrypt) y la cuenta se activa. */
     @Transactional
     public void configurarCuenta(ConfigurarCuentaRequest request) {
         Usuario usuario = validarToken(request.token());
+
         usuario.setPassword(passwordEncoder.encode(request.password()));
         usuario.setEnable(true);
         usuario.setTokenInvitacion(null);
         usuario.setFechaExpiracionToken(null);
+
         usuarioRepository.save(usuario);
     }
 }

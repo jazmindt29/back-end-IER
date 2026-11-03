@@ -36,16 +36,25 @@ public class AuthController {
         return new ResponseEntity<>(Map.of("mensaje", "Invitación enviada a " + request.email()), HttpStatus.CREATED);
     }
 
-    // El frontend valida el token antes de mostrar el formulario de contraseña
-    @GetMapping("/invitaciones/{token}")
-    public Map<String, Object> validarToken(@PathVariable String token) {
-        Usuario usuario = authService.validarToken(token);
-        return Map.of("valido", true, "email", usuario.getUsername());
+  @GetMapping("/invitaciones/{token}")
+    public ResponseEntity<?> validarToken(@PathVariable String token) {
+        try {
+            Usuario usuario = authService.validarToken(token);
+            return ResponseEntity.ok(Map.of("valido", true, "email", usuario.getUsername()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("valido", false, "mensaje", e.getMessage()));
+        }
     }
 
     @PostMapping("/configurar-cuenta")
-    public Map<String, String> configurarCuenta(@Valid @RequestBody ConfigurarCuentaRequest request) {
-        authService.configurarCuenta(request);
-        return Map.of("mensaje", "Cuenta activada. Ya puedes iniciar sesión.");
+    public ResponseEntity<?> configurarCuenta(@Valid @RequestBody ConfigurarCuentaRequest request) {
+        try {
+            authService.configurarCuenta(request);
+            return ResponseEntity.ok(Map.of("mensaje", "Cuenta activada. Ya puedes iniciar sesión."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("mensaje", e.getMessage()));
+        }
     }
 }

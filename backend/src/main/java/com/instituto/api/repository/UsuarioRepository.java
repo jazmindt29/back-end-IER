@@ -13,4 +13,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     // Flujo de invitación: localizar la cuenta pendiente por su token
     Optional<Usuario> findByTokenInvitacion(String tokenInvitacion);
+    
 }

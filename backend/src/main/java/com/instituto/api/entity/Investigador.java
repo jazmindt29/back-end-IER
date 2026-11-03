@@ -17,9 +17,16 @@ public class Investigador {
     @NotBlank
     private String nombre;
     private String area;
+   
+    @Column(columnDefinition = "TEXT")
     private String especialidad;
+
     private String grado;
+
+    @Column(columnDefinition = "TEXT")
     private String bio;
+
+    @Column(columnDefinition = "TEXT")
     private String biografia;
 
     @Column(name = "foto_url")
@@ -31,7 +38,7 @@ public class Investigador {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToOne
-    @JoinColumn(name = "usuario_id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
     private Usuario usuario;
 }

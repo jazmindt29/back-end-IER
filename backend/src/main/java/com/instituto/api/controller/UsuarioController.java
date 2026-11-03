@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -44,5 +45,27 @@ public class UsuarioController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/validar-token")
+    public ResponseEntity<?> validarToken(@RequestParam("token") String token) {
+        boolean esValido = service.validarTokenInvitacion(token);
+        if (esValido) {
+            return ResponseEntity.ok(Map.of("valido", true));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("valido", false, "mensaje", "Token inválido o expirado"));
+        }
+    }
+
+    @PostMapping("/activar-cuenta")
+    public ResponseEntity<?> activarCuenta(@RequestBody Map<String, String> payload) {
+        String token = payload.get("token");
+        String password = payload.get("password");
+
+        try {
+            service.activarCuenta(token, password);
+            return ResponseEntity.ok(Map.of("mensaje", "Cuenta activada correctamente"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("mensaje", e.getMessage()));
+        }
     }
 }

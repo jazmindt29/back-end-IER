@@ -7,7 +7,8 @@ import { Aviso, Proyecto } from '../../core/models';
   selector: 'app-home',
   standalone: true,
   imports: [DatePipe],
-  templateUrl: './home.html'
+  templateUrl: './home.html',
+    styleUrl: './home.css'
 })
 export class HomeComponent implements OnInit {
   private api = inject(ApiService);

@@ -1,0 +1,127 @@
+
+/* Fondo general */
+:host {
+  display: block;
+  color: #173b3f;
+}
+
+:host {
+  display: block;
+  min-height: 100vh;
+
+  background-image:
+    linear-gradient(
+      rgba(235, 250, 247, 0.88),
+      rgba(225, 245, 242, 0.92)
+    ),
+    url('/assets/pic.jpg');
+
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+
+  padding: 30px;
+}
+
+/* Títulos de las secciones */
+h1 {
+  color: #087f8c;
+  font-weight: 700;
+}
+
+h2 {
+  color: #126e82;
+  border-bottom-color: #79c9b5 !important;
+  font-weight: 600;
+}
+
+/* Tarjetas */
+.card {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(18, 110, 130, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 22px rgba(18, 110, 130, 0.18);
+}
+
+/* Imágenes */
+.media-cover {
+  height: 210px;
+  object-fit: cover;
+}
+
+/* Contenido de las tarjetas */
+.card-body {
+  padding: 1.25rem;
+}
+
+.card-title {
+  color: #126e82;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  color: #6b8585 !important;
+}
+
+.card-text {
+  color: #365b5d;
+  line-height: 1.6;
+}
+
+/* Botón Ver más / Ver menos */
+.btn-link {
+  color: #079992;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-link:hover {
+  color: #056b68;
+  text-decoration: underline;
+}
+
+/* Estados de los proyectos */
+.badge {
+  background-color: #55b89b !important;
+  color: #ffffff !important;
+  border-radius: 20px;
+  padding: 0.45rem 0.75rem;
+}
+
+/* Mensajes cuando no hay información */
+.text-muted {
+  color: #708b8b !important;
+}
+
+/* Texto recortado */
+.texto-recortado {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Ajustes de la portada dentro del sistema visual global. */
+:host {
+  min-height: auto;
+  padding: 0;
+  color: #1e293b;
+  background: transparent;
+}
+
+h1 { color: #1e40af; letter-spacing: -.04em; }
+h2 { color: #1d4ed8; border-bottom-color: #bfdbfe !important; }
+.card { border: 1px solid #bfdbfe; border-radius: 1rem; box-shadow: 0 10px 30px rgba(37, 99, 235, .08); }
+.card:hover { box-shadow: 0 16px 34px rgba(37, 99, 235, .12); }
+.card-title { color: #1e40af; }
+.card-text { color: #475569; }
+.card-subtitle, .text-muted { color: #64748b !important; }
+.btn-link { color: #14b8a6; }
+.badge { background-color: #ccfbf1 !important; color: #0f766e !important; }

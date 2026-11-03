@@ -16,7 +16,10 @@ public class Proyecto {
 
     @NotBlank
     private String titulo;
+
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
+    
     private String estado; 
     
     // Usamos es_destacado para que los métodos del repository 

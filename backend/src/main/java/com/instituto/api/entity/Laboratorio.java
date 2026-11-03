@@ -17,6 +17,7 @@ public class Laboratorio {
     @NotBlank
     private String nombre;
 
+   @Column(columnDefinition = "TEXT")
     private String descripcion;
 
     @Column(name = "imagen_url")
