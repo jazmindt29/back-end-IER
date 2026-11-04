@@ -1,0 +1,52 @@
+<h1 class="mb-2">Proyectos</h1>
+<p class="text-muted">Conoce todos los proyectos del instituto, destacados y no destacados.</p>
+
+@if (cargando()) { <p role="status">Cargando proyectos…</p> }
+@if (error()) {
+  <div class="alert alert-danger" role="alert">
+    <p>{{ error() }}</p>
+    <button type="button" class="btn btn-outline-danger btn-sm" (click)="cargar()" [disabled]="cargando()">Reintentar</button>
+  </div>
+}
+
+@if (!cargando() && !error()) {
+  @if (proyectos().length === 0) {
+    <p class="text-muted" role="status">No hay proyectos publicados por el momento.</p>
+  } @else {
+    <div class="mb-4">
+      <label for="buscar-proyectos" class="form-label">Buscar proyectos</label>
+      <input id="buscar-proyectos" type="search" class="form-control" placeholder="Título, descripción, estado o investigador"
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)">
+      <p class="small text-muted mt-2" role="status">{{ visibles().length }} de {{ proyectos().length }} proyectos</p>
+    </div>
+    @if (visibles().length === 0) {
+      <p role="status">No hay proyectos que coincidan con tu búsqueda.</p>
+      <button type="button" class="btn btn-outline-secondary" (click)="busqueda.set('')">Limpiar búsqueda</button>
+    }
+    <div class="row g-4">
+      @for (proyecto of visibles(); track proyecto.id) {
+        <article class="col-md-6 col-xl-4">
+          <div class="card h-100">
+            @if (proyecto.imagenUrl) {
+              <img [src]="proyecto.imagenUrl" [alt]="proyecto.titulo" class="card-img-top media-cover" loading="lazy">
+            }
+            <div class="card-body">
+              <h2 class="h5 card-title">{{ proyecto.titulo }}</h2>
+              @if (proyecto.estado) { <span class="badge text-bg-secondary mb-2">{{ proyecto.estado }}</span> }
+              @if (proyecto.esDestacado) { <span class="badge text-bg-primary mb-2 ms-1">Destacado</span> }
+              <p class="card-text" style="white-space: pre-line; overflow-wrap: anywhere;">{{ proyecto.descripcion || 'Descripción pendiente de publicación.' }}</p>
+              @if (proyecto.investigadores?.length) {
+                <h3 class="h6">Investigadores participantes</h3>
+                <ul class="small mb-0">
+                  @for (investigador of proyecto.investigadores; track investigador.id) {
+                    <li>{{ investigador.nombre }}</li>
+                  }
+                </ul>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+}

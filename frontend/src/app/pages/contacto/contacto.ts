@@ -13,9 +13,6 @@ import { ApiService } from '../../core/api.service';
 export class ContactoComponent {
   private api = inject(ApiService);
 
-  // Validación del cliente: el correo debe ser del Gmail institucional
-  readonly gmailPattern = '^[a-zA-Z0-9._%+\\-]+@gmail\\.com$';
-
   modelo = { nombre: '', email: '', asunto: '', mensaje: '' };
   enviado = false;
   error = '';

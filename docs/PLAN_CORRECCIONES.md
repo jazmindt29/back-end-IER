@@ -125,15 +125,37 @@ el 2026-11-03. Los pendientes de diseño y operación se enumeran por separado.
 - Verificación local de sintaxis Bash, exclusión Git, diff hygiene y revisión estática
   del script PowerShell. La ejecución real de `run.ps1` debe confirmarse en Windows.
 
+### Tanda 9 — Catálogo público y usabilidad
+
+- Se añadió `/proyectos` público, con carga diferida, pestaña de navegación y enlace
+  desde Inicio. Consulta todos los proyectos, no solo los destacados; incluye búsqueda
+  por título, descripción, estado e investigador, estados vacíos y reintento de errores.
+- Inicio sigue mostrando exclusivamente los destacados. El catálogo no requiere
+  cambios en el backend ni migraciones de base de datos.
+- Contacto admite correos válidos de cualquier dominio, igual que su DTO backend;
+  se quitaron la restricción Gmail y la etiqueta institucional incorrecta. Los campos
+  respetan las longitudes máximas admitidas por el servidor.
+- Fechas configuradas en español de México. El calendario usa botones enfocables
+  para seleccionar días y etiquetas accesibles para avanzar/retroceder períodos.
+- Se corrigió desbordamiento de la navegación con administrador y correo largo:
+  menú colapsado antes de 1400 px y ancho limitado del nombre con título completo.
+- Verificado con 37 pruebas Karma y build de producción. Capturas de Chrome con
+  datos simulados: catálogo a 390 y 1440 px, menú móvil y administrador a 1280/1440 px,
+  sin desbordamiento horizontal. Se probaron búsqueda y cierre del menú. No hubo
+  escrituras en bases ni envío de correo. No se ejecutó el backend en esta tanda.
+- La revisión no certifica toda la accesibilidad ni todos los flujos del sistema.
+  Quedan por mejorar el tratamiento de rutas inexistentes (hoy redirigen a Inicio),
+  las cargas independientes de las secciones de Inicio y las respuestas de imágenes rotas.
+
 ## Verificación realizada
 
 | Comprobación | Resultado |
 |---|---|
 | Backend: compilación y pruebas | 29 pruebas, 0 fallos y 0 errores |
 | De ellas, integración PostgreSQL 16 aislado | 15 pruebas, incluyendo V1+V2, privacidad de reservas, autor de proyectos y concurrencia real |
-| Frontend: Karma con ChromeHeadless | 28 pruebas correctas |
+| Frontend: Karma con ChromeHeadless | 37 pruebas correctas |
 | Backend: empaquetado ejecutable Spring Boot | Correcto |
-| Frontend: compilación de producción | Correcta; tamaño inicial de 621.98 kB frente a 804.31 kB antes; aún supera el objetivo de 500 kB |
+| Frontend: compilación de producción | Correcta; tamaño inicial de 624.20 kB frente a 804.31 kB antes; aún supera el objetivo de 500 kB |
 | npm ci y auditoría de ejecución | Correcto; 0 avisos de ejecución, 22 moderados solo en auditoría completa de herramientas |
 | Proxy de desarrollo `/api` | GET de solo lectura a `/api/avisos`: 200 JSON tanto vía Angular como directo al backend |
 | TypeScript de tests | Correcto |

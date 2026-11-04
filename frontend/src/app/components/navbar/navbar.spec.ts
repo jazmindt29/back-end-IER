@@ -24,6 +24,10 @@ describe('NavbarComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('incluye Proyectos en la navegación pública', () => {
+    expect(fixture.nativeElement.querySelector('a[href="/proyectos"]').textContent).toContain('Proyectos');
+  });
+
   it('abre y cierra el menú móvil sin depender del JavaScript de Bootstrap', () => {
     const boton: HTMLButtonElement = fixture.nativeElement.querySelector('.navbar-toggler');
     const menu: HTMLElement = fixture.nativeElement.querySelector('#menuPrincipal');

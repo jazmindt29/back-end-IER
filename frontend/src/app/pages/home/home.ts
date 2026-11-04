@@ -3,13 +3,14 @@ import { forkJoin, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { mensajeHttp } from '../../core/http-error';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { Aviso, Proyecto } from '../../core/models';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, RouterLink],
   templateUrl: './home.html',
     styleUrl: './home.css'
 })

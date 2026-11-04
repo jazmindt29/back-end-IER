@@ -11,6 +11,10 @@ repositorios Spring Data y entidades JPA. Las entradas de contacto, reservas,
 proyectos y alta de cuentas usan DTO validados. Los demás POST rechazan IDs explícitos
 de creación. Las reservas públicas devuelven solo horario y referencias mínimas.
 
+La navegación pública incluye `/proyectos`: consulta el catálogo completo y permite
+buscar sin sesión. Inicio conserva su sección de proyectos destacados y enlaza al
+catálogo. Las fechas de la aplicación usan español de México.
+
 ## Autenticación
 
 JWT HS256 con issuer ier-api y duración de ocho horas. Además de firma y expiración,

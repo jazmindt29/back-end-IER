@@ -13,23 +13,23 @@
   @switch (vista) {
     @case ('mes') {
       <div>
-        <button class="btn btn-sm btn-outline-secondary" (click)="cambiarMes(-1)">&laquo;</button>
+        <button class="btn btn-sm btn-outline-secondary" aria-label="Mes anterior" (click)="cambiarMes(-1)">&laquo;</button>
         <strong class="mx-3 text-capitalize">{{ tituloMes | date: 'MMMM yyyy' }}</strong>
-        <button class="btn btn-sm btn-outline-secondary" (click)="cambiarMes(1)">&raquo;</button>
+        <button class="btn btn-sm btn-outline-secondary" aria-label="Mes siguiente" (click)="cambiarMes(1)">&raquo;</button>
       </div>
     }
     @case ('semana') {
       <div>
-        <button class="btn btn-sm btn-outline-secondary" (click)="cambiarSemana(-1)">&laquo;</button>
+        <button class="btn btn-sm btn-outline-secondary" aria-label="Semana anterior" (click)="cambiarSemana(-1)">&laquo;</button>
         <strong class="mx-3">Semana del {{ diasSemana[0].fecha | date: 'dd/MM' }} al {{ diasSemana[6].fecha | date: 'dd/MM' }}</strong>
-        <button class="btn btn-sm btn-outline-secondary" (click)="cambiarSemana(1)">&raquo;</button>
+        <button class="btn btn-sm btn-outline-secondary" aria-label="Semana siguiente" (click)="cambiarSemana(1)">&raquo;</button>
       </div>
     }
     @case ('dia') {
       <div>
-        <button class="btn btn-sm btn-outline-secondary" (click)="cambiarDia(-1)">&laquo;</button>
+        <button class="btn btn-sm btn-outline-secondary" aria-label="Día anterior" (click)="cambiarDia(-1)">&laquo;</button>
         <strong class="mx-3">{{ diaSeleccionado | date: 'EEEE dd/MM/yyyy' }}</strong>
-        <button class="btn btn-sm btn-outline-secondary" (click)="cambiarDia(1)">&raquo;</button>
+        <button class="btn btn-sm btn-outline-secondary" aria-label="Día siguiente" (click)="cambiarDia(1)">&raquo;</button>
       </div>
     }
   }
@@ -49,13 +49,15 @@
         @for (semana of semanas; track $index) {
           <tr>
             @for (dia of semana; track dia.fecha) {
-              <td [class.fuera-mes]="!dia.delMes" [class.hoy]="dia.esHoy" (click)="seleccionarDia(dia.fecha)">
-                <div class="small fw-bold">{{ dia.numero }}</div>
+              <td [class.fuera-mes]="!dia.delMes" [class.hoy]="dia.esHoy">
+                <button type="button" class="dia-calendario" [attr.aria-label]="'Ver reservas del ' + dia.fecha" (click)="seleccionarDia(dia.fecha)">
+                <span class="small fw-bold d-block">{{ dia.numero }}</span>
                 @for (r of reservasDe(dia.fecha); track r.id) {
                   <span class="chip-reserva" title="{{ r.laboratorio.nombre }} {{ hora(r.horaInicio) }}–{{ hora(r.horaFin) }}">
                     {{ hora(r.horaInicio) }} {{ r.laboratorio.nombre }}
                   </span>
                 }
+                </button>
               </td>
             }
           </tr>
