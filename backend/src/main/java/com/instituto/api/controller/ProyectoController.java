@@ -1,6 +1,7 @@
 package com.instituto.api.controller;
 
 import com.instituto.api.entity.Proyecto;
+import com.instituto.api.dto.ProyectoRequest;
 import com.instituto.api.service.ProyectoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +33,13 @@ public class ProyectoController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
-    public ResponseEntity<Proyecto> crear(@Valid @RequestBody Proyecto proyecto) {
+    public ResponseEntity<Proyecto> crear(@Valid @RequestBody ProyectoRequest proyecto) {
         return new ResponseEntity<>(proyectoService.guardar(proyecto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
-    public ResponseEntity<Proyecto> actualizar(@PathVariable Long id, @Valid @RequestBody Proyecto detalles) {
+    public ResponseEntity<Proyecto> actualizar(@PathVariable Long id, @Valid @RequestBody ProyectoRequest detalles) {
         return ResponseEntity.ok(proyectoService.actualizar(id, detalles));
     }
 

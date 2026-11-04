@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { LoginResponse } from './models';
 import { API_URL as API } from './api.constants';
+import { sesionActual } from './session-token';
 
 const TOKEN_KEY = 'ier_token';
 
@@ -21,18 +22,12 @@ export class AuthService {
   }
 
   get token(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return sesionActual()?.token ?? null;
   }
 
   // Payload del JWT decodificado (claims: sub, rol, userId, investigadorId, exp)
-  private get payload(): any | null {
-    const t = this.token;
-    if (!t) return null;
-    try {
-      return JSON.parse(atob(t.split('.')[1]));
-    } catch {
-      return null;
-    }
+  private get payload() {
+    return sesionActual()?.claims ?? null;
   }
 
   get isLoggedIn(): boolean {
@@ -58,7 +53,7 @@ export class AuthService {
 
   // Cubre tanto "ADMIN" como "ADMINISTRADOR" (según cómo esté nombrado el rol en BD)
   get isAdmin(): boolean {
-    return this.isLoggedIn && (this.rol ?? '').toUpperCase().startsWith('ADMIN');
+    return this.isLoggedIn && ['ADMIN', 'ADMINISTRADOR'].includes((this.rol ?? '').toUpperCase());
   }
 
   get isInvestigador(): boolean {

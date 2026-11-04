@@ -1,4 +1,6 @@
 <h1 class="mb-3">Calendario de uso de laboratorios</h1>
+@if (error) { <div class="alert alert-danger" role="alert">{{ error }} La ausencia de reservas en pantalla no confirma disponibilidad.</div> }
+@if (cargando()) { <p role="status">Cargando reservas…</p> }
 <p class="text-muted">Consulta qué días y horarios están reservados antes de acudir a un laboratorio.</p>
 
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -72,7 +74,7 @@
               @for (r of reservasDe(dia.fecha); track r.id) {
                 <span class="chip-reserva">{{ hora(r.horaInicio) }}–{{ hora(r.horaFin) }} {{ r.laboratorio.nombre }}</span>
               }
-              @if (reservasDe(dia.fecha).length === 0) {
+              @if (cargado && reservasDe(dia.fecha).length === 0) {
                 <span class="small text-muted">Libre</span>
               }
             </div>
@@ -83,7 +85,7 @@
   }
 
   @case ('dia') {
-    @if (reservasDe(diaSeleccionado).length === 0) {
+    @if (cargado && reservasDe(diaSeleccionado).length === 0) {
       <div class="alert alert-success">No hay reservas este día; todos los laboratorios están libres.</div>
     } @else {
       <table class="table">

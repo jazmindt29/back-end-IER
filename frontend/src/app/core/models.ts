@@ -1,4 +1,4 @@
-// Interfaces espejo de las entidades del backend
+// Contratos de lectura del API; no son entidades JPA.
 
 export interface Rol {
   id: number;
@@ -66,8 +66,16 @@ export interface Reserva {
   fecha: string;        // yyyy-MM-dd
   horaInicio: string;   // HH:mm:ss
   horaFin: string;
-  laboratorio: Laboratorio;
-  investigador?: Investigador;
+  laboratorio: Pick<Laboratorio, 'id' | 'nombre'>;
+  investigador?: Pick<Investigador, 'id' | 'nombre'>;
+}
+
+export interface ReservaRequest {
+  fecha: string;
+  horaInicio: string;
+  horaFin: string;
+  laboratorio: { id: number };
+  investigador?: { id: number };
 }
 
 export interface Actividad {

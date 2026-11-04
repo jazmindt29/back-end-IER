@@ -27,6 +27,7 @@ public class ComponenteController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
     public Componente crear(@Valid @RequestBody Componente componente) {
+        com.instituto.api.dto.CreacionSegura.sinId(componente.getId());
         return repository.save(componente);
     }
 

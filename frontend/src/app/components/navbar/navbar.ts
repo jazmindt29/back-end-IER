@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 
@@ -11,8 +11,14 @@ import { AuthService } from '../../core/auth.service';
 export class NavbarComponent {
   auth = inject(AuthService);
   private router = inject(Router);
+  menuAbierto = signal(false);
+
+  cerrarMenu(): void {
+    this.menuAbierto.set(false);
+  }
 
   cerrarSesion(): void {
+    this.cerrarMenu();
     this.auth.logout();
     this.router.navigate(['/']);
   }

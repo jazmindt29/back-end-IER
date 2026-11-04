@@ -5,21 +5,28 @@ import com.instituto.api.entity.ReservaLaboratorio;
 import com.instituto.api.repository.InvestigadorRepository;
 import com.instituto.api.repository.ReservaLaboratorioRepository;
 import com.instituto.api.security.JwtService;
+import com.instituto.api.dto.ReservaRequest;
+import com.instituto.api.repository.LaboratorioRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.time.LocalDateTime;
 
 @Service
 public class ReservaService {
 
     private final ReservaLaboratorioRepository repo;
     private final InvestigadorRepository investigadorRepository;
+    private final LaboratorioRepository laboratorios;
 
-    public ReservaService(ReservaLaboratorioRepository repo, InvestigadorRepository investigadorRepository) {
+    public ReservaService(ReservaLaboratorioRepository repo, InvestigadorRepository investigadorRepository,
+                          LaboratorioRepository laboratorios) {
         this.repo = repo;
         this.investigadorRepository = investigadorRepository;
+        this.laboratorios = laboratorios;
     }
 
     public List<ReservaLaboratorio> listar() {
@@ -30,9 +37,23 @@ public class ReservaService {
         return repo.findByInvestigadorIdOrderByFechaDesc(investigadorId);
     }
 
-    public ReservaLaboratorio crear(ReservaLaboratorio reserva) {
+    @Transactional
+    public ReservaLaboratorio crear(ReservaRequest solicitud) {
+        if (solicitud.id() != null) {
+            throw new IllegalArgumentException("No se permite indicar un ID al crear");
+        }
+        ReservaLaboratorio reserva = new ReservaLaboratorio();
+        reserva.setFecha(solicitud.fecha());
+        reserva.setHoraInicio(solicitud.horaInicio());
+        reserva.setHoraFin(solicitud.horaFin());
+        // El bloqueo del laboratorio serializa también las reservas de un día aún vacío.
+        reserva.setLaboratorio(laboratorios.buscarParaReservar(solicitud.laboratorio().id())
+                .orElseThrow(() -> new NoSuchElementException("Laboratorio no encontrado")));
         if (!reserva.getHoraFin().isAfter(reserva.getHoraInicio())) {
             throw new IllegalArgumentException("La hora de fin debe ser posterior a la hora de inicio");
+        }
+        if (!LocalDateTime.of(reserva.getFecha(), reserva.getHoraInicio()).isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("No puedes reservar un horario que ya comenzó");
         }
         // Un investigador solo agenda a su propio nombre; el admin puede agendar para cualquiera
         if (!JwtService.esAdmin()) {
@@ -43,8 +64,12 @@ public class ReservaService {
             Investigador propio = investigadorRepository.findById(invId)
                     .orElseThrow(() -> new NoSuchElementException("No existe el investigador " + invId));
             reserva.setInvestigador(propio);
-        } else if (reserva.getInvestigador() == null || reserva.getInvestigador().getId() == null) {
-            throw new IllegalArgumentException("Debes indicar el investigador que reserva");
+        } else {
+            if (solicitud.investigador() == null) {
+                throw new IllegalArgumentException("Debes indicar el investigador que reserva");
+            }
+            reserva.setInvestigador(investigadorRepository.findById(solicitud.investigador().id())
+                    .orElseThrow(() -> new NoSuchElementException("Investigador no encontrado")));
         }
         validarColision(reserva);
         return repo.save(reserva);
@@ -56,7 +81,6 @@ public class ReservaService {
         List<ReservaLaboratorio> delDia =
                 repo.findByLaboratorioIdAndFecha(nueva.getLaboratorio().getId(), nueva.getFecha());
         boolean choca = delDia.stream()
-                .filter(r -> !r.getId().equals(nueva.getId()))
                 .anyMatch(r -> r.getHoraInicio().isBefore(nueva.getHoraFin())
                         && nueva.getHoraInicio().isBefore(r.getHoraFin()));
         if (choca) {
@@ -64,6 +88,7 @@ public class ReservaService {
         }
     }
 
+    @Transactional
     public void eliminar(Long id) {
         ReservaLaboratorio reserva = repo.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No existe la reserva " + id));

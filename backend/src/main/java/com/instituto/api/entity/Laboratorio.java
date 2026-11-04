@@ -2,12 +2,14 @@ package com.instituto.api.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "laboratorios")
-@Data
+@Getter
+@Setter
 public class Laboratorio {
 
     @Id

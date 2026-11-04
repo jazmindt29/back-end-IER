@@ -1,0 +1,30 @@
+@if (mensaje) { <div class="alert alert-success" role="status">{{ mensaje }}</div> }
+@if (advertencia) { <div class="alert alert-warning" role="status">{{ advertencia }}</div> }
+@if (error) { <div class="alert alert-danger" role="alert">{{ error }}</div> }
+
+<div class="card" style="max-width: 560px;">
+  <div class="card-body">
+    <h2 class="h6">Invitar a un investigador</h2>
+    <p class="small text-muted">
+      Solo se registra el nombre y el correo institucional. El investigador recibirá un
+      correo con un enlace (válido 48 horas) para establecer su propia contraseña.
+    </p>
+    <form #f="ngForm" (ngSubmit)="f.valid && invitar()" class="row g-2" [attr.aria-busy]="enviando()">
+      <div class="col-md-5">
+        <input name="nombre" class="form-control" placeholder="Nombre completo" required [(ngModel)]="invitacion.nombre">
+      </div>
+      <div class="col-md-5">
+        <input name="email" type="email" class="form-control" placeholder="correo@institucion.mx" required email [(ngModel)]="invitacion.email">
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-primary w-100" [disabled]="f.invalid || enviando()">
+          {{ enviando() ? 'Enviando…' : 'Invitar' }}
+        </button>
+      </div>
+      <div class="col-12">
+        <button type="button" class="btn btn-outline-secondary btn-sm" [disabled]="f.invalid || enviando()" (click)="invitar(true)">Reenviar invitación</button>
+        <p class="form-text">Para una cuenta pendiente, reenviar genera un enlace nuevo y deja sin efecto el anterior.</p>
+      </div>
+    </form>
+  </div>
+</div>

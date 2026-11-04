@@ -10,11 +10,11 @@
 </ul>
 
 @if (pestania === 'perfil') {
+  @if (errorPerfil) { <div class="alert alert-danger" role="alert">{{ errorPerfil }}</div> }
   @if (perfil; as p) {
     @if (mensajePerfil) { <div class="alert alert-success">{{ mensajePerfil }}</div> }
-    @if (errorPerfil) { <div class="alert alert-danger">{{ errorPerfil }}</div> }
 
-    <form (ngSubmit)="guardarPerfil()" class="row g-3" style="max-width: 720px;">
+    <form #perfilForm="ngForm" (ngSubmit)="perfilForm.valid && guardarPerfil()" class="row g-3" style="max-width: 720px;">
       <div class="col-md-6">
         <label class="form-label" for="nombre">Nombre</label>
         <input id="nombre" name="nombre" class="form-control" required [(ngModel)]="p.nombre">
@@ -52,11 +52,11 @@
         <textarea id="biografia" name="biografia" class="form-control" rows="4" [(ngModel)]="p.biografia"></textarea>
       </div>
       <div class="col-12">
-        <button class="btn btn-primary">Guardar cambios</button>
+        <button class="btn btn-primary" [disabled]="perfilForm.invalid || guardandoPerfil()">{{ guardandoPerfil() ? 'Guardando…' : 'Guardar cambios' }}</button>
       </div>
     </form>
-  } @else {
-    <p class="text-muted">Cargando perfil…</p>
+  } @else if (cargandoPerfil()) {
+    <p class="text-muted" role="status">Cargando perfil…</p>
   }
 }
 
@@ -90,7 +90,7 @@
           <input id="fin" name="fin" type="time" class="form-control" required [(ngModel)]="nuevaReserva.horaFin">
         </div>
         <div class="col-md-1">
-          <button class="btn btn-primary w-100" [disabled]="f.invalid" title="Agendar">
+          <button class="btn btn-primary w-100" [disabled]="f.invalid || guardandoReserva()" title="Agendar" [attr.aria-label]="guardandoReserva() ? 'Guardando reserva' : 'Agendar reserva'">
             <i class="bi bi-plus-lg"></i>
           </button>
         </div>
@@ -99,7 +99,8 @@
   </div>
 
   <h2 class="h6">Mis reservas</h2>
-  @if (reservas.length === 0) {
+  @if (cargandoReservas()) { <p role="status">Cargando reservas…</p> }
+  @if (!cargandoReservas() && !errorReserva && reservas.length === 0) {
     <p class="text-muted">No tienes reservas registradas.</p>
   } @else {
     <table class="table" style="max-width: 720px;">
@@ -113,7 +114,7 @@
             <td>{{ hora(r.horaInicio) }} – {{ hora(r.horaFin) }}</td>
             <td>{{ r.laboratorio.nombre }}</td>
             <td class="text-end">
-              <button class="btn btn-sm btn-outline-danger" (click)="cancelar(r)">Cancelar</button>
+              <button class="btn btn-sm btn-outline-danger" [disabled]="guardandoReserva()" (click)="cancelar(r)">Cancelar</button>
             </td>
           </tr>
         }

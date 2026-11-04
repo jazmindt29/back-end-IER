@@ -1,4 +1,6 @@
 <h1 class="mb-4">Investigadores</h1>
+@if (error) { <div class="alert alert-danger" role="alert">{{ error }}</div> }
+@if (cargando()) { <p role="status">Cargando investigadores…</p> }
 
 <div class="btn-group mb-4" role="group" aria-label="Filtro por área">
   <button type="button" class="btn"
@@ -13,7 +15,7 @@
   }
 </div>
 
-@if (investigadores.length === 0) {
+@if (!cargando() && !error && investigadores.length === 0) {
   <p class="text-muted">No hay investigadores registrados en esta área.</p>
 }
 

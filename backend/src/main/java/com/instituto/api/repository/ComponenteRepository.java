@@ -7,6 +7,7 @@ import java.util.List;
 
 @Repository
 public interface ComponenteRepository extends JpaRepository<Componente, Long> {
+    boolean existsByLaboratorioId(Long laboratorioId);
     // Materiales de un laboratorio específico (catálogo público)
     List<Componente> findByLaboratorioId(Long laboratorioId);
 }

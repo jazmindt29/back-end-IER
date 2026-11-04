@@ -1,22 +1,23 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { catchError, throwError } from 'rxjs';
+import { API_URL } from './api.constants';
+import { sesionActual } from './session-token';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  // 1. Excluir rutas que no deben llevar token (Login o endpoints de autenticación)
-  if (req.url.includes('/auth/login')) {
-    return next(req); // Pasa la petición intacta, sin modificar headers
-  }
-
-  // 2. Para el resto de peticiones, obtenemos el token
-  const token = localStorage.getItem('ier_token');
-  
-  // 3. Si existe, lo clonamos en la cabecera
-  if (token) {
-    const authReq = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` }
-    });
-    return next(authReq);
-  }
-
-  // 4. Si no hay token, pasa normal (útil para visitantes no logueados viendo proyectos)
-  return next(req);
+  const perteneceApi = req.url === API_URL || req.url.startsWith(API_URL + '/');
+  const ruta = req.url.split('?')[0];
+  const publica = ruta === API_URL + '/auth/login'
+    || ruta === API_URL + '/auth/configurar-cuenta'
+    || (req.method === 'GET' && ruta.startsWith(API_URL + '/auth/invitaciones/'));
+  if (!perteneceApi || publica) return next(req);
+  const sesion = sesionActual();
+  return next(sesion ? req.clone({ setHeaders: { Authorization: 'Bearer ' + sesion.token } }) : req).pipe(
+    catchError((error: unknown) => {
+      if (sesion && error instanceof HttpErrorResponse && error.status === 401) {
+        // No borrar una sesión nueva si esta petición pertenecía a la anterior.
+        if (localStorage.getItem('ier_token') === sesion.token) localStorage.removeItem('ier_token');
+      }
+      return throwError(() => error);
+    }),
+  );
 };

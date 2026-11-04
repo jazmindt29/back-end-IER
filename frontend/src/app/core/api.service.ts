@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   Auditoria, Aviso, Componente, Investigador,
-  Laboratorio, Proyecto, Reserva, Usuario,
+  Laboratorio, Proyecto, Reserva, ReservaRequest, Usuario,
 } from './models';
 
 import { API_URL as API } from './api.constants';
@@ -14,6 +14,21 @@ export interface Contacto {
   email: string;
   asunto?: string;
   mensaje: string;
+}
+
+export interface ResultadoInvitacion {
+  mensaje: string;
+  enviado: boolean;
+  venceEn: string;
+}
+
+export interface ProyectoRequest {
+  titulo: string;
+  descripcion?: string;
+  estado?: string;
+  esDestacado?: boolean;
+  imagenUrl?: string;
+  investigadorIds: number[];
 }
 
 // Todas las llamadas HTTP al backend en un solo lugar
@@ -30,8 +45,8 @@ export class ApiService {
   // --- Proyectos ---
   getProyectos(): Observable<Proyecto[]> { return this.http.get<Proyecto[]>(`${API}/proyectos`); }
   getProyectosDestacados(): Observable<Proyecto[]> { return this.http.get<Proyecto[]>(`${API}/proyectos/destacados`); }
-  crearProyecto(p: Partial<Proyecto>) { return this.http.post<Proyecto>(`${API}/proyectos`, p); }
-  actualizarProyecto(id: number, p: Partial<Proyecto>) { return this.http.put<Proyecto>(`${API}/proyectos/${id}`, p); }
+  crearProyecto(p: ProyectoRequest) { return this.http.post<Proyecto>(`${API}/proyectos`, p); }
+  actualizarProyecto(id: number, p: ProyectoRequest) { return this.http.put<Proyecto>(`${API}/proyectos/${id}`, p); }
   eliminarProyecto(id: number) { return this.http.delete<void>(`${API}/proyectos/${id}`); }
 
   // --- Laboratorios ---
@@ -63,7 +78,7 @@ export class ApiService {
     const params = investigadorId ? new HttpParams().set('investigadorId', investigadorId) : undefined;
     return this.http.get<Reserva[]>(`${API}/reservas`, { params });
   }
-  crearReserva(r: Partial<Reserva>) { return this.http.post<Reserva>(`${API}/reservas`, r); }
+  crearReserva(r: ReservaRequest) { return this.http.post<Reserva>(`${API}/reservas`, r); }
   eliminarReserva(id: number) { return this.http.delete<void>(`${API}/reservas/${id}`); }
 
   // --- Contacto ---
@@ -71,7 +86,10 @@ export class ApiService {
 
   // --- Invitaciones y activación de cuenta ---
   invitarInvestigador(nombre: string, email: string) {
-    return this.http.post<{ mensaje: string }>(`${API}/auth/invitaciones`, { nombre, email });
+    return this.http.post<ResultadoInvitacion>(`${API}/auth/invitaciones`, { nombre, email });
+  }
+  reenviarInvitacion(nombre: string, email: string) {
+    return this.http.post<ResultadoInvitacion>(`${API}/auth/invitaciones/reenviar`, { nombre, email });
   }
   validarTokenInvitacion(token: string) {
     return this.http.get<{ valido: boolean; email: string }>(`${API}/auth/invitaciones/${token}`);

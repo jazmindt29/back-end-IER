@@ -1,8 +1,10 @@
 <h1 class="mb-4">Instituto de Energías Renovables</h1>
+@if (error) { <div class="alert alert-danger" role="alert">{{ error }}</div> }
+@if (cargando()) { <p role="status">Cargando contenido…</p> }
 
 <section class="mb-5">
   <h2 class="h4 border-bottom pb-2">Avisos y publicaciones</h2>
-  @if (avisos.length === 0) {
+  @if (!cargando() && !error && avisos.length === 0) {
     <p class="text-muted">No hay avisos publicados por el momento.</p>
   }
   <div class="row g-3">
@@ -34,7 +36,7 @@
 
 <section>
   <h2 class="h4 border-bottom pb-2">Proyectos destacados</h2>
-  @if (destacados.length === 0) {
+  @if (!cargando() && !error && destacados.length === 0) {
     <p class="text-muted">No hay proyectos destacados por el momento.</p>
   }
   <div class="row g-3">

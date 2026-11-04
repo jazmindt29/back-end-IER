@@ -3,12 +3,14 @@ package com.instituto.api.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "contacto")
-@Data
+@Getter
+@Setter
 public class Contacto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +26,7 @@ public class Contacto {
     private String asunto;
 
     @NotBlank
+    @Column(columnDefinition = "TEXT")
     private String mensaje;
 
     @Column(name = "fecha_envio")

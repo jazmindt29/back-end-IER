@@ -2,13 +2,15 @@ package com.instituto.api.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "proyectos")
-@Data
+@Getter
+@Setter
 public class Proyecto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,10 +21,10 @@ public class Proyecto {
 
     @Column(columnDefinition = "TEXT")
     private String descripcion;
-    
-    private String estado; 
-    
-    // Usamos es_destacado para que los métodos del repository 
+
+    private String estado;
+
+    // Usamos es_destacado para que los métodos del repository
     // como findByEsDestacadoTrue coincidan con el nombre del campo
     @Column(name = "es_destacado")
     private Boolean esDestacado;

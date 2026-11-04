@@ -2,12 +2,14 @@ package com.instituto.api.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "avisos")
-@Data
+@Getter
+@Setter
 public class Aviso {
 
     @Id
@@ -29,6 +31,7 @@ public class Aviso {
 
     // Administrador que realizó la publicación; se asigna en el servidor
     // a partir del usuario autenticado, no del body de la petición
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne
     @JoinColumn(name = "autor_id")
     private Usuario autor;

@@ -1,6 +1,8 @@
 package com.instituto.api.controller;
 
 import com.instituto.api.entity.ReservaLaboratorio;
+import com.instituto.api.dto.ReservaRequest;
+import com.instituto.api.dto.ReservaResponse;
 import com.instituto.api.service.ReservaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +22,17 @@ public class ReservaController {
 
     // Público: los estudiantes consultan qué horarios están ocupados
     @GetMapping
-    public List<ReservaLaboratorio> listar(@RequestParam(required = false) Long investigadorId) {
-        return investigadorId != null
+    public List<ReservaResponse> listar(@RequestParam(required = false) Long investigadorId) {
+        List<ReservaLaboratorio> reservas = investigadorId != null
                 ? service.listarPorInvestigador(investigadorId)
                 : service.listar();
+        return reservas.stream().map(ReservaResponse::desde).toList();
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR','INVESTIGADOR')")
-    public ResponseEntity<ReservaLaboratorio> crear(@Valid @RequestBody ReservaLaboratorio reserva) {
-        return new ResponseEntity<>(service.crear(reserva), HttpStatus.CREATED);
+    public ResponseEntity<ReservaResponse> crear(@Valid @RequestBody ReservaRequest reserva) {
+        return new ResponseEntity<>(ReservaResponse.desde(service.crear(reserva)), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

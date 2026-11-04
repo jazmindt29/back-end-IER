@@ -1,60 +1,64 @@
 package com.instituto.api.controller;
 
-import com.instituto.api.dto.ConfigurarCuentaRequest;
-import com.instituto.api.dto.InvitacionRequest;
-import com.instituto.api.dto.LoginRequest;
-import com.instituto.api.dto.LoginResponse;
-import com.instituto.api.entity.Usuario;
+import com.instituto.api.dto.*;
 import com.instituto.api.service.AuthService;
+import com.instituto.api.service.MailService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    private final AuthService auth;
+    private final MailService mail;
 
-    @Autowired
-    private AuthService authService;
+    public AuthController(AuthService auth, MailService mail) {
+        this.auth = auth;
+        this.mail = mail;
+    }
 
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-        return authService.login(request);
+        return auth.login(request);
     }
 
-    // El admin invita a un investigador: solo nombre + correo institucional.
-    // El backend crea la cuenta inactiva y envía el enlace de activación por email.
     @PostMapping("/invitaciones")
     @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
-    public ResponseEntity<Map<String, String>> invitar(@Valid @RequestBody InvitacionRequest request) {
-        authService.invitarInvestigador(request);
-        return new ResponseEntity<>(Map.of("mensaje", "Invitación enviada a " + request.email()), HttpStatus.CREATED);
+    public ResponseEntity<ResultadoInvitacion> invitar(@Valid @RequestBody InvitacionRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(prepararYEnviar(request, false));
     }
 
-  @GetMapping("/invitaciones/{token}")
-    public ResponseEntity<?> validarToken(@PathVariable String token) {
-        try {
-            Usuario usuario = authService.validarToken(token);
-            return ResponseEntity.ok(Map.of("valido", true, "email", usuario.getUsername()));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("valido", false, "mensaje", e.getMessage()));
-        }
+    @PostMapping("/invitaciones/reenviar")
+    @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
+    public ResultadoInvitacion reenviar(@Valid @RequestBody InvitacionRequest request) {
+        return prepararYEnviar(request, true);
+    }
+
+    private ResultadoInvitacion prepararYEnviar(InvitacionRequest request, boolean reenviar) {
+        var invitacion = auth.prepararInvitacion(request, reenviar);
+        // La transacción del servicio ya terminó: el enlace existe antes de enviarlo.
+        boolean enviado = mail.enviarInvitacion(invitacion.email(), invitacion.nombre(), invitacion.token());
+        String mensaje = enviado
+                ? "Invitación enviada. El enlace tiene una vigencia de 48 horas."
+                : "Invitación guardada, pero el correo no pudo enviarse. Revisa SMTP y usa Reenviar invitación.";
+        return new ResultadoInvitacion(mensaje, enviado, invitacion.venceEn());
+    }
+
+    @GetMapping("/invitaciones/{token}")
+    public Map<String, Object> validarToken(@PathVariable String token) {
+        var usuario = auth.validarToken(token);
+        return Map.of("valido", true, "email", usuario.getUsername());
     }
 
     @PostMapping("/configurar-cuenta")
-    public ResponseEntity<?> configurarCuenta(@Valid @RequestBody ConfigurarCuentaRequest request) {
-        try {
-            authService.configurarCuenta(request);
-            return ResponseEntity.ok(Map.of("mensaje", "Cuenta activada. Ya puedes iniciar sesión."));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("mensaje", e.getMessage()));
-        }
+    public Map<String, String> configurarCuenta(@Valid @RequestBody ConfigurarCuentaRequest request) {
+        auth.configurarCuenta(request);
+        return Map.of("mensaje", "Cuenta activada. Ya puedes iniciar sesión.");
     }
+
+    public record ResultadoInvitacion(String mensaje, boolean enviado, LocalDateTime venceEn) { }
 }

@@ -3,7 +3,7 @@
 <div class="row">
   <div class="col-md-7">
     @if (enviado) {
-      <div class="alert alert-success">Tu mensaje fue enviado. Te responderemos al correo indicado.</div>
+      <div class="alert alert-success" role="status">Tu mensaje fue registrado correctamente.</div>
     }
     @if (error) {
       <div class="alert alert-danger">{{ error }}</div>
@@ -40,7 +40,7 @@
                   [class.is-invalid]="mensaje.invalid && mensaje.touched"></textarea>
       </div>
 
-      <button class="btn btn-primary" [disabled]="f.invalid">Enviar mensaje</button>
+      <button class="btn btn-primary" [disabled]="f.invalid || enviando()">{{ enviando() ? 'Enviando…' : 'Enviar mensaje' }}</button>
     </form>
   </div>
 </div>

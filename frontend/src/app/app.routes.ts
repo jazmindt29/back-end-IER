@@ -1,26 +1,16 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home';
-import { QuienesSomosComponent } from './pages/quienes-somos/quienes-somos';
-import { LaboratoriosComponent } from './pages/laboratorios/laboratorios';
-import { InvestigadoresComponent } from './pages/investigadores/investigadores';
-import { CalendarioComponent } from './pages/calendario/calendario';
-import { ContactoComponent } from './pages/contacto/contacto';
-import { LoginComponent } from './pages/login/login';
-import { ConfigurarCuentaComponent } from './pages/configurar-cuenta/configurar-cuenta';
-import { PanelInvestigadorComponent } from './pages/panel-investigador/panel-investigador';
-import { PanelAdminComponent } from './pages/panel-admin/panel-admin';
 import { adminGuard, investigadorGuard } from './core/guards';
 
 export const routes: Routes = [
-    { path: '', component: HomeComponent },
-    { path: 'quienes-somos', component: QuienesSomosComponent },
-    { path: 'laboratorios', component: LaboratoriosComponent },
-    { path: 'investigadores', component: InvestigadoresComponent },
-    { path: 'calendario', component: CalendarioComponent },
-    { path: 'contacto', component: ContactoComponent },
-    { path: 'login', component: LoginComponent },
-    { path: 'configurar-cuenta', component: ConfigurarCuentaComponent },
-    { path: 'panel', component: PanelInvestigadorComponent, canActivate: [investigadorGuard] },
-    { path: 'admin', component: PanelAdminComponent, canActivate: [adminGuard] },
+    { path: '', loadComponent: () => import('./pages/home/home').then(m => m.HomeComponent) },
+    { path: 'quienes-somos', loadComponent: () => import('./pages/quienes-somos/quienes-somos').then(m => m.QuienesSomosComponent) },
+    { path: 'laboratorios', loadComponent: () => import('./pages/laboratorios/laboratorios').then(m => m.LaboratoriosComponent) },
+    { path: 'investigadores', loadComponent: () => import('./pages/investigadores/investigadores').then(m => m.InvestigadoresComponent) },
+    { path: 'calendario', loadComponent: () => import('./pages/calendario/calendario').then(m => m.CalendarioComponent) },
+    { path: 'contacto', loadComponent: () => import('./pages/contacto/contacto').then(m => m.ContactoComponent) },
+    { path: 'login', loadComponent: () => import('./pages/login/login').then(m => m.LoginComponent) },
+    { path: 'configurar-cuenta', loadComponent: () => import('./pages/configurar-cuenta/configurar-cuenta').then(m => m.ConfigurarCuentaComponent) },
+    { path: 'panel', loadComponent: () => import('./pages/panel-investigador/panel-investigador').then(m => m.PanelInvestigadorComponent), canActivate: [investigadorGuard] },
+    { path: 'admin', loadComponent: () => import('./pages/panel-admin/panel-admin').then(m => m.PanelAdminComponent), canActivate: [adminGuard] },
     { path: '**', redirectTo: '' }
 ];

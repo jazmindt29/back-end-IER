@@ -10,31 +10,14 @@
   <li class="nav-item"><button class="nav-link" [class.active]="pestania === 'auditoria'" (click)="cambiar('auditoria')">Auditoría</button></li>
 </ul>
 
-@if (mensaje) { <div class="alert alert-success">{{ mensaje }}</div> }
-@if (error) { <div class="alert alert-danger">{{ error }}</div> }
+@if (mensaje) { <div class="alert alert-success" role="status">{{ mensaje }}</div> }
+@if (error) { <div class="alert alert-danger" role="alert">{{ error }}</div> }
+@if (cargando()) { <p role="status">Cargando datos…</p> }
+@if (guardando()) { <p role="status">Guardando cambios…</p> }
 
 <!-- ======================= INVITACIONES ======================= -->
 @if (pestania === 'invitaciones') {
-  <div class="card" style="max-width: 560px;">
-    <div class="card-body">
-      <h2 class="h6">Invitar a un investigador</h2>
-      <p class="small text-muted">
-        Solo se registra el nombre y el correo institucional. El investigador recibirá un
-        correo con un enlace (válido 48 horas) para establecer su propia contraseña.
-      </p>
-      <form #f="ngForm" (ngSubmit)="f.valid && invitar()" class="row g-2">
-        <div class="col-md-5">
-          <input name="nombre" class="form-control" placeholder="Nombre completo" required [(ngModel)]="invitacion.nombre">
-        </div>
-        <div class="col-md-5">
-          <input name="email" type="email" class="form-control" placeholder="correo@institucion.mx" required email [(ngModel)]="invitacion.email">
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-primary w-100" [disabled]="f.invalid">Invitar</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <app-invitaciones-admin />
 }
 
 <!-- ======================= AVISOS ======================= -->
@@ -49,7 +32,7 @@
           <div class="col-md-6"><input name="imagenUrl" class="form-control" placeholder="URL de imagen (opcional)" [(ngModel)]="a.imagenUrl"></div>
           <div class="col-12"><textarea name="contenido" class="form-control" rows="4" placeholder="Contenido" required [(ngModel)]="a.contenido"></textarea></div>
           <div class="col-12">
-            <button class="btn btn-primary btn-sm me-2" [disabled]="f.invalid">Guardar</button>
+            <button class="btn btn-primary btn-sm me-2" [disabled]="f.invalid || guardando()">Guardar</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" (click)="avisoEdit = null">Cancelar</button>
           </div>
         </form>
@@ -99,7 +82,7 @@
           </div>
           <div class="col-12"><textarea name="descripcion" class="form-control" rows="3" placeholder="Descripción" [(ngModel)]="p.descripcion"></textarea></div>
           <div class="col-12">
-            <button class="btn btn-primary btn-sm me-2" [disabled]="f.invalid">Guardar</button>
+            <button class="btn btn-primary btn-sm me-2" [disabled]="f.invalid || guardando()">Guardar</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" (click)="proyectoEdit = null">Cancelar</button>
           </div>
         </form>
@@ -145,7 +128,7 @@
           </div>
           <div class="col-12"><textarea name="descripcion" class="form-control" rows="3" placeholder="Descripción" [(ngModel)]="l.descripcion"></textarea></div>
           <div class="col-12">
-            <button class="btn btn-primary btn-sm me-2" [disabled]="f.invalid">Guardar</button>
+            <button class="btn btn-primary btn-sm me-2" [disabled]="f.invalid || guardando()">Guardar</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" (click)="laboratorioEdit = null">Cancelar</button>
           </div>
         </form>
@@ -190,7 +173,7 @@
           </div>
           <div class="col-12"><textarea name="descripcion" class="form-control" rows="2" placeholder="Descripción" [(ngModel)]="c.descripcion"></textarea></div>
           <div class="col-12">
-            <button class="btn btn-primary btn-sm me-2" [disabled]="f.invalid || !c.laboratorioId">Guardar</button>
+            <button class="btn btn-primary btn-sm me-2" [disabled]="f.invalid || !c.laboratorioId || guardando()">Guardar</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" (click)="componenteEdit = null">Cancelar</button>
           </div>
         </form>
@@ -238,7 +221,7 @@
           <div class="col-md-6"><input name="fotoUrl" class="form-control" placeholder="URL de foto" [(ngModel)]="i.fotoUrl"></div>
           <div class="col-12"><textarea name="biografia" class="form-control" rows="3" placeholder="Biografía" [(ngModel)]="i.biografia"></textarea></div>
           <div class="col-12">
-            <button class="btn btn-primary btn-sm me-2" [disabled]="f.invalid">Guardar</button>
+            <button class="btn btn-primary btn-sm me-2" [disabled]="f.invalid || guardando()">Guardar</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" (click)="investigadorEdit = null">Cancelar</button>
           </div>
         </form>

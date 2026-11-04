@@ -32,6 +32,7 @@ public class AvisoController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
     public ResponseEntity<Aviso> crear(@Valid @RequestBody Aviso aviso) {
+        com.instituto.api.dto.CreacionSegura.sinId(aviso.getId());
         // El autor es siempre el administrador autenticado, no lo decide el cliente
         Long adminId = JwtService.usuarioActualId();
         if (adminId != null) {

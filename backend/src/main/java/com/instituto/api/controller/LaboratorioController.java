@@ -34,6 +34,7 @@ public class LaboratorioController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
     public Laboratorio crear(@Valid @RequestBody Laboratorio lab) {
+        com.instituto.api.dto.CreacionSegura.sinId(lab.getId());
         return service.guardar(lab);
     }
 

@@ -2,7 +2,11 @@
   <div class="col-md-6 col-lg-5">
     <h1 class="h3 mb-4 text-center">Configurar cuenta</h1>
 
-    @switch (estado) {
+    @switch (estado()) {
+      @case ('error') {
+        <div class="alert alert-warning" role="alert">{{ error }}</div>
+        <button type="button" class="btn btn-outline-primary w-100" (click)="validar()">Volver a intentar</button>
+      }
       @case ('validando') {
         <p class="text-center text-muted">Validando invitación…</p>
       }
@@ -25,14 +29,14 @@
           <div class="mb-3">
             <label class="form-label" for="password">Nueva contraseña (mínimo 8 caracteres)</label>
             <input id="password" name="password" type="password" class="form-control"
-                   required minlength="8" [(ngModel)]="password" autocomplete="new-password">
+                   required minlength="8" maxlength="72" [(ngModel)]="password" autocomplete="new-password">
           </div>
           <div class="mb-3">
             <label class="form-label" for="confirmacion">Confirmar contraseña</label>
             <input id="confirmacion" name="confirmacion" type="password" class="form-control"
                    required [(ngModel)]="confirmacion" autocomplete="new-password">
           </div>
-          <button class="btn btn-primary w-100" [disabled]="f.invalid">Activar cuenta</button>
+          <button class="btn btn-primary w-100" [disabled]="f.invalid || guardando()">{{ guardando() ? 'Activando…' : 'Activar cuenta' }}</button>
         </form>
       }
     }

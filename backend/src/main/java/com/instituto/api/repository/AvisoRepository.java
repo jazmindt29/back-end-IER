@@ -7,5 +7,6 @@ import java.util.List;
 
 @Repository
 public interface AvisoRepository extends JpaRepository<Aviso, Long> {
+    boolean existsByAutorId(Long usuarioId);
     List<Aviso> findAllByOrderByFechaPublicacionDesc();
 }

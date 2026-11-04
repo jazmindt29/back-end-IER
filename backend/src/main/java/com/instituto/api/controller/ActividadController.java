@@ -25,6 +25,7 @@ public class ActividadController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
     public Actividad crear(@Valid @RequestBody Actividad actividad) {
+        com.instituto.api.dto.CreacionSegura.sinId(actividad.getId());
         return repository.save(actividad);
     }
 

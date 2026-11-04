@@ -8,6 +8,8 @@ import java.util.List;
 
 @Repository
 public interface ReservaLaboratorioRepository extends JpaRepository<ReservaLaboratorio, Long> {
+    boolean existsByInvestigadorId(Long investigadorId);
+    boolean existsByLaboratorioId(Long laboratorioId);
     // Reservas existentes de un laboratorio en una fecha, para detectar traslapes
     List<ReservaLaboratorio> findByLaboratorioIdAndFecha(Long laboratorioId, LocalDate fecha);
 

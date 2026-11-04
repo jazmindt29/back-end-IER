@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import java.net.URI;
 
 @Service
 public class MailService {
@@ -28,8 +29,25 @@ public class MailService {
         this.sender = sender;
     }
 
-    public void enviarInvitacion(String email, String nombre, String token) {
-        String enlace = frontendUrl + "/configurar-cuenta?token=" + token;
+    public boolean enviarInvitacion(String email, String nombre, String token) {
+        if (frontendUrl == null || frontendUrl.isBlank()) {
+            log.warn("APP_FRONTEND_URL no configurado; invitación guardada sin enviar enlace");
+            return false;
+        }
+        String base = frontendUrl.trim();
+        try {
+            URI uri = URI.create(base);
+            if (uri.getHost() == null || !("http".equalsIgnoreCase(uri.getScheme())
+                    || "https".equalsIgnoreCase(uri.getScheme())) || uri.getQuery() != null
+                    || uri.getFragment() != null) {
+                log.warn("APP_FRONTEND_URL no es una URL HTTP(S) válida; correo no enviado");
+                return false;
+            }
+        } catch (IllegalArgumentException ex) {
+            log.warn("APP_FRONTEND_URL no es una URL HTTP(S) válida; correo no enviado");
+            return false;
+        }
+        String enlace = base.replaceFirst("/+$", "") + "/configurar-cuenta?token=" + token;
         String cuerpo = """
                 Hola %s:
 
@@ -41,12 +59,12 @@ public class MailService {
 
                 Si no esperabas este correo, ignóralo.
                 """.formatted(nombre, enlace);
-        enviar(email, "Invitación a la plataforma del IER", cuerpo);
+        return enviar(email, "Invitación a la plataforma del IER", cuerpo);
     }
 
     public void notificarContacto(Contacto contacto) {
         if (contactoDestino == null || contactoDestino.isBlank()) {
-            log.info("APP_MAIL_CONTACTO no configurado; mensaje de contacto de {} solo guardado en BD", contacto.getEmail());
+            log.info("APP_MAIL_CONTACTO no configurado; mensaje de contacto guardado sin notificación");
             return;
         }
         String cuerpo = """
@@ -63,9 +81,12 @@ public class MailService {
         enviar(contactoDestino, "Contacto IER: " + (contacto.getAsunto() == null ? "nuevo mensaje" : contacto.getAsunto()), cuerpo);
     }
 
-    // ponytail: si el SMTP no está configurado o falla, se registra en el log y la
-    // operación de negocio (guardar en BD) no se revierte; el enlace queda en el log
-    private void enviar(String para, String asunto, String cuerpo) {
+    // No registrar cuerpos, destinatarios ni tokens; el llamador informa el resultado.
+    private boolean enviar(String para, String asunto, String cuerpo) {
+        if (remitente == null || remitente.isBlank()) {
+            log.warn("SMTP sin configurar; correo no enviado");
+            return false;
+        }
         try {
             SimpleMailMessage msg = new SimpleMailMessage();
             if (remitente != null && !remitente.isBlank()) {
@@ -75,9 +96,11 @@ public class MailService {
             msg.setSubject(asunto);
             msg.setText(cuerpo);
             sender.send(msg);
-            log.info("Correo enviado a {}: {}", para, asunto);
+            log.info("Correo enviado correctamente");
+            return true;
         } catch (Exception e) {
-            log.warn("No se pudo enviar el correo a {} ({}). Contenido:\n{}", para, e.getMessage(), cuerpo);
+            log.warn("No se pudo enviar el correo ({})", e.getClass().getSimpleName());
+            return false;
         }
     }
 }

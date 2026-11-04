@@ -51,6 +51,7 @@ public class InvestigadorController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
     public Investigador crear(@Valid @RequestBody Investigador investigador) {
+        com.instituto.api.dto.CreacionSegura.sinId(investigador.getId());
         return service.guardar(investigador);
     }
 

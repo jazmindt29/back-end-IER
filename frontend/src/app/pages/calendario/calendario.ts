@@ -1,4 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { mensajeHttp } from '../../core/http-error';
 import { DatePipe } from '@angular/common';
 import { ApiService } from '../../core/api.service';
 import { Reserva } from '../../core/models';
@@ -23,6 +26,10 @@ function claveFecha(d: Date): string {
 })
 export class CalendarioComponent implements OnInit {
   private api = inject(ApiService);
+  private destroyRef = inject(DestroyRef);
+  cargando = signal(false);
+  cargado = false;
+  error = '';
 
   readonly nombresDias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
@@ -34,15 +41,17 @@ export class CalendarioComponent implements OnInit {
 
   ngOnInit(): void {
     this.construirMes();
-    this.api.getReservas().subscribe((reservas) => {
+    this.cargando.set(true);
+    this.api.getReservas().pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.cargando.set(false))).subscribe({ next: reservas => {
+      this.cargado = true;
       this.reservasPorDia.clear();
       for (const r of reservas) {
         const lista = this.reservasPorDia.get(r.fecha) ?? [];
         lista.push(r);
-        lista.sort((a, b) => a.horaInicio.localeCompare(b.horaInicio));
         this.reservasPorDia.set(r.fecha, lista);
       }
-    });
+      for (const lista of this.reservasPorDia.values()) lista.sort((a, b) => a.horaInicio.localeCompare(b.horaInicio));
+    }, error: e => this.error = mensajeHttp(e, 'No se pudo cargar la disponibilidad de laboratorios') });
   }
 
   get tituloMes(): Date {

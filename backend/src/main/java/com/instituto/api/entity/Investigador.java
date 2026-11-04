@@ -2,12 +2,14 @@ package com.instituto.api.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "investigadores")
-@Data
+@Getter
+@Setter
 public class Investigador {
 
     @Id
@@ -17,7 +19,7 @@ public class Investigador {
     @NotBlank
     private String nombre;
     private String area;
-   
+
     @Column(columnDefinition = "TEXT")
     private String especialidad;
 
@@ -38,7 +40,8 @@ public class Investigador {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @OneToOne
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")
     private Usuario usuario;
 }

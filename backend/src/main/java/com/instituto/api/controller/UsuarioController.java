@@ -1,71 +1,39 @@
 package com.instituto.api.controller;
 
+import com.instituto.api.dto.UsuarioRequest;
 import com.instituto.api.entity.Usuario;
 import com.instituto.api.service.UsuarioService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')") // gestión de cuentas: solo administradores
+@PreAuthorize("hasAnyRole('ADMIN','ADMINISTRADOR')")
 public class UsuarioController {
+    private final UsuarioService service;
 
-    @Autowired
-    private UsuarioService service;
+    public UsuarioController(UsuarioService service) { this.service = service; }
 
-    // Obtener todos los usuarios (incluye sus roles)
     @GetMapping
-    public List<Usuario> listar() {
-        return service.listar();
-    }
+    public List<Usuario> listar() { return service.listar(); }
 
-    // Buscar un usuario por su Username
     @GetMapping("/{username}")
     public ResponseEntity<Usuario> buscarPorUsername(@PathVariable String username) {
-        return service.buscarPorUsername(username)
-                .map(ResponseEntity::ok)
+        return service.buscarPorUsername(username).map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Registrar un nuevo usuario (Admin o Investigador) con contraseña cifrada.
-    // Para investigadores es preferible el flujo de invitación (/api/auth/invitaciones)
     @PostMapping
-    public Usuario registrar(@Valid @RequestBody Usuario usuario) {
-        return service.registrarUsuario(usuario);
+    public Usuario registrar(@Valid @RequestBody UsuarioRequest solicitud) {
+        return service.registrarUsuario(solicitud);
     }
 
-    // Eliminar un usuario por ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
-    }
-    @GetMapping("/validar-token")
-    public ResponseEntity<?> validarToken(@RequestParam("token") String token) {
-        boolean esValido = service.validarTokenInvitacion(token);
-        if (esValido) {
-            return ResponseEntity.ok(Map.of("valido", true));
-        } else {
-            return ResponseEntity.badRequest().body(Map.of("valido", false, "mensaje", "Token inválido o expirado"));
-        }
-    }
-
-    @PostMapping("/activar-cuenta")
-    public ResponseEntity<?> activarCuenta(@RequestBody Map<String, String> payload) {
-        String token = payload.get("token");
-        String password = payload.get("password");
-
-        try {
-            service.activarCuenta(token, password);
-            return ResponseEntity.ok(Map.of("mensaje", "Cuenta activada correctamente"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", e.getMessage()));
-        }
     }
 }

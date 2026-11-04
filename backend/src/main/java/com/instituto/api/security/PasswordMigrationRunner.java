@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
  * Se ejecuta en cada arranque pero solo re-escribe las que aún son planas.
  */
 @Component
+@Profile("dev")
 public class PasswordMigrationRunner implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(PasswordMigrationRunner.class);

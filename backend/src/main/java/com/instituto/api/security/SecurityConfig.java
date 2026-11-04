@@ -29,6 +29,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import com.instituto.api.repository.UsuarioRepository;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 
 @Configuration
 @EnableWebSecurity
@@ -76,6 +78,10 @@ public class SecurityConfig {
     }
 
     private SecretKey secretKey() {
+        if (jwtSecret.getBytes(StandardCharsets.UTF_8).length < 32
+                || jwtSecret.equals("ier-secreto-de-desarrollo-cambiar-en-produccion!")) {
+            throw new IllegalStateException("JWT_SECRET debe ser una clave propia de al menos 32 bytes");
+        }
         return new SecretKeySpec(jwtSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
     }
 
@@ -85,8 +91,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withSecretKey(secretKey()).macAlgorithm(MacAlgorithm.HS256).build();
+    public JwtDecoder jwtDecoder(UsuarioRepository usuarios) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey()).macAlgorithm(MacAlgorithm.HS256).build();
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                org.springframework.security.oauth2.jwt.JwtValidators.createDefaultWithIssuer("ier-api"),
+                new CuentaActivaValidator(usuarios)));
+        return decoder;
     }
 
     // El claim "rol" del JWT (nombre del rol en BD, ej. ADMIN o INVESTIGADOR)
@@ -106,7 +116,7 @@ public class SecurityConfig {
      @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(corsOrigins.split(",")));
+        config.setAllowedOrigins(Arrays.stream(corsOrigins.split(",")).map(String::trim).toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         
         // Cambio de seguridad: Especificar cabeceras explícitas en lugar de "*"

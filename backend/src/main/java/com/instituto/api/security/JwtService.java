@@ -77,6 +77,6 @@ public class JwtService {
     public static boolean esAdmin() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth != null && auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().startsWith("ROLE_ADMIN"));
+                .anyMatch(a -> java.util.Set.of("ROLE_ADMIN", "ROLE_ADMINISTRADOR").contains(a.getAuthority()));
     }
 }

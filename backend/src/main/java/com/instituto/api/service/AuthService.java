@@ -1,115 +1,116 @@
 package com.instituto.api.service;
 
-import com.instituto.api.dto.ConfigurarCuentaRequest;
-import com.instituto.api.dto.InvitacionRequest;
-import com.instituto.api.dto.LoginRequest;
-import com.instituto.api.dto.LoginResponse;
-import com.instituto.api.entity.Investigador;
-import com.instituto.api.entity.Usuario;
-import com.instituto.api.repository.InvestigadorRepository;
-import com.instituto.api.repository.RolRepository;
-import com.instituto.api.repository.UsuarioRepository;
+import com.instituto.api.dto.*;
+import com.instituto.api.entity.*;
+import com.instituto.api.repository.*;
 import com.instituto.api.security.JwtService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
 public class AuthService {
+    private final UsuarioRepository usuarios;
+    private final InvestigadorRepository investigadores;
+    private final RolRepository roles;
+    private final PasswordEncoder passwords;
+    private final JwtService jwt;
 
-    private static final long ROL_INVESTIGADOR_ID = 4L;
-
-    private final UsuarioRepository usuarioRepository;
-    private final InvestigadorRepository investigadorRepository;
-    private final RolRepository rolRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final MailService mailService;
-
-    public AuthService(UsuarioRepository usuarioRepository,
-                       InvestigadorRepository investigadorRepository,
-                       RolRepository rolRepository,
-                       PasswordEncoder passwordEncoder,
-                       JwtService jwtService,
-                       MailService mailService) {
-        this.usuarioRepository = usuarioRepository;
-        this.investigadorRepository = investigadorRepository;
-        this.rolRepository = rolRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-        this.mailService = mailService;
+    public AuthService(UsuarioRepository usuarios, InvestigadorRepository investigadores,
+                       RolRepository roles, PasswordEncoder passwords, JwtService jwt) {
+        this.usuarios = usuarios;
+        this.investigadores = investigadores;
+        this.roles = roles;
+        this.passwords = passwords;
+        this.jwt = jwt;
     }
 
     public LoginResponse login(LoginRequest request) {
-        Usuario usuario = usuarioRepository.findByUsername(request.username())
+        String identificador = request.username().trim();
+        if (identificador.contains("@")) identificador = identificador.toLowerCase(Locale.ROOT);
+        Usuario usuario = usuarios.findByUsername(identificador)
                 .orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
         if (!Boolean.TRUE.equals(usuario.getEnable())
-                || !passwordEncoder.matches(request.password(), usuario.getPassword())) {
+                || !passwords.matches(request.password(), usuario.getPassword())) {
             throw new BadCredentialsException("Credenciales inválidas");
         }
-        Long investigadorId = investigadorRepository.findByUsuarioId(usuario.getId())
+        Long investigadorId = investigadores.findByUsuarioId(usuario.getId())
                 .map(Investigador::getId).orElse(null);
-        String token = jwtService.generarToken(usuario, investigadorId);
-        String rol = usuario.getRol() != null ? usuario.getRol().getNombre() : null;
-        return new LoginResponse(token, usuario.getUsername(), rol, usuario.getId(), investigadorId);
+        return new LoginResponse(jwt.generarToken(usuario, investigadorId), usuario.getUsername(),
+                usuario.getRol().getNombre(), usuario.getId(), investigadorId);
     }
 
+    /** Devuelve los datos necesarios para enviar el correo UNA VEZ confirmado el commit. */
     @Transactional
-    public void invitarInvestigador(InvitacionRequest request) {
-        if (usuarioRepository.findByUsername(request.email()).isPresent()) {
-            throw new IllegalArgumentException("Ya existe una cuenta con el correo " + request.email());
+    public InvitacionPreparada prepararInvitacion(InvitacionRequest request, boolean reenviar) {
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
+        Usuario usuario = usuarios.buscarPorCorreoParaActualizar(email).orElse(null);
+        if (usuario != null && Boolean.TRUE.equals(usuario.getEnable())) {
+            throw new IllegalStateException("Ya existe una cuenta activa con ese correo");
         }
-
-        Usuario usuario = new Usuario();
-        usuario.setUsername(request.email());
-        usuario.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-        usuario.setEnable(false);
-        usuario.setCreatedAt(LocalDateTime.now());
-        usuario.setRol(rolRepository.findById(ROL_INVESTIGADOR_ID)
-                .orElseThrow(() -> new NoSuchElementException("No existe el rol INVESTIGADOR (id " + ROL_INVESTIGADOR_ID + ")")));
+        if (usuario != null && !reenviar) {
+            throw new IllegalStateException("La cuenta ya tiene una invitación. Usa Reenviar invitación");
+        }
+        if (usuario == null && reenviar) {
+            throw new NoSuchElementException("No hay una invitación para ese correo");
+        }
+        boolean nueva = usuario == null;
+        if (nueva) {
+            usuario = new Usuario();
+            usuario.setUsername(email);
+            usuario.setPassword(passwords.encode(UUID.randomUUID().toString()));
+            usuario.setEnable(false);
+            usuario.setCreatedAt(LocalDateTime.now());
+            usuario.setRol(roles.findByNombreIgnoreCase("INVESTIGADOR")
+                    .orElseThrow(() -> new IllegalStateException("Falta configurar el rol INVESTIGADOR")));
+        } else if (usuario.getRol() == null || !"INVESTIGADOR".equalsIgnoreCase(usuario.getRol().getNombre())) {
+            throw new IllegalStateException("La cuenta no pertenece a un investigador");
+        }
         String token = UUID.randomUUID().toString();
         usuario.setTokenInvitacion(token);
         usuario.setFechaExpiracionToken(LocalDateTime.now().plusHours(48));
-        usuario = usuarioRepository.save(usuario);
+        usuarios.saveAndFlush(usuario);
 
-        Investigador perfil = new Investigador();
-        perfil.setUsuario(usuario);
-        perfil.setNombre(request.nombre());
-        perfil.setCorreoInstitucional(request.email());
-        investigadorRepository.save(perfil);
-
-        mailService.enviarInvitacion(request.email(), request.nombre(), token);
+        if (nueva) {
+            Investigador perfil = new Investigador();
+            perfil.setUsuario(usuario);
+            perfil.setNombre(request.nombre().trim());
+            perfil.setCorreoInstitucional(email);
+            investigadores.save(perfil);
+        }
+        return new InvitacionPreparada(email, request.nombre().trim(), token,
+                usuario.getFechaExpiracionToken());
     }
 
+    @Transactional(readOnly = true)
     public Usuario validarToken(String token) {
-        if (token == null || token.isBlank()) {
-            throw new RuntimeException("El token es requerido.");
+        return comprobarVigencia(usuarios.findByTokenInvitacion(token)
+                .orElseThrow(() -> new IllegalArgumentException("El enlace de invitación no es válido o ya fue utilizado")));
+    }
+
+    private Usuario comprobarVigencia(Usuario usuario) {
+        if (Boolean.TRUE.equals(usuario.getEnable()) || usuario.getFechaExpiracionToken() == null
+                || !LocalDateTime.now().isBefore(usuario.getFechaExpiracionToken())) {
+            throw new IllegalArgumentException("El enlace de invitación ha expirado o ya fue utilizado");
         }
-
-        Usuario usuario = usuarioRepository.findByTokenInvitacion(token)
-                .orElseThrow(() -> new RuntimeException("El enlace de invitación no es válido."));
-
-        if (usuario.getFechaExpiracionToken() == null || LocalDateTime.now().isAfter(usuario.getFechaExpiracionToken())) {
-            throw new RuntimeException("El enlace de invitación ha expirado.");
-        }
-
         return usuario;
     }
 
     @Transactional
     public void configurarCuenta(ConfigurarCuentaRequest request) {
-        Usuario usuario = validarToken(request.token());
-
-        usuario.setPassword(passwordEncoder.encode(request.password()));
+        Usuario usuario = comprobarVigencia(usuarios.buscarTokenParaActualizar(request.token())
+                .orElseThrow(() -> new IllegalArgumentException("El enlace de invitación no es válido o ya fue utilizado")));
+        usuario.setPassword(passwords.encode(request.password()));
         usuario.setEnable(true);
         usuario.setTokenInvitacion(null);
         usuario.setFechaExpiracionToken(null);
-
-        usuarioRepository.save(usuario);
+        usuarios.save(usuario);
     }
+
+    public record InvitacionPreparada(String email, String nombre, String token, LocalDateTime venceEn) { }
 }
