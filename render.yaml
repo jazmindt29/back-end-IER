@@ -1,0 +1,64 @@
+# Despliegue de un solo servicio en Render.
+# Render construye el Dockerfile de la raíz (frontend + backend) y crea
+# automáticamente la base PostgreSQL.
+databases:
+  - name: ier-db
+    plan: free
+    databaseName: ier
+    user: ier
+
+services:
+  - type: web
+    name: ier
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    # Espera a que backend y base estén listos, no solo nginx.
+    healthCheckPath: /api/proyectos
+    envVars:
+      # nginx escucha en 8080; Spring Boot queda interno en 8081.
+      - key: PORT
+        value: "8080"
+      - key: SERVER_PORT
+        value: "8081"
+
+      # La base se crea en el mismo Blueprint; Render inyecta sus credenciales.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ier-db
+          property: connectionString
+      - key: IER_DB_USERNAME
+        fromDatabase:
+          name: ier-db
+          property: user
+      - key: IER_DB_PASSWORD
+        fromDatabase:
+          name: ier-db
+          property: password
+
+      # Secreto JWT aleatorio de 256 bits.
+      - key: JWT_SECRET
+        generateValue: true
+
+      # Perfil de arranque: crea el administrador si la base está vacía.
+      # Después del primer despliegue puedes cambiarlo a "prod".
+      - key: SPRING_PROFILES_ACTIVE
+        value: bootstrap
+      - key: APP_BOOTSTRAP_ADMIN_USERNAME
+        value: admin
+      # Render pedirá este valor al aplicar el Blueprint.
+      - key: APP_BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
+
+      # URL pública de este mismo servicio, para enlaces de invitación y CORS.
+      - key: APP_FRONTEND_URL
+        fromService:
+          name: ier
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: APP_CORS_ORIGINS
+        fromService:
+          name: ier
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL

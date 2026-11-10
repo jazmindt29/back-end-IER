@@ -1,0 +1,20 @@
+# Contexto del Dockerfile de la raíz (Render). Mantiene la imagen ligera y
+# fuera los secretos locales.
+.git
+.github
+.vscode
+.idea
+**/.git
+**/.idea
+**/.vscode
+**/node_modules
+**/dist
+**/.angular
+**/target
+**/.env
+**/.env.*
+!**/.env.example
+docs
+README.md
+PROJECT_CONTEXT.md
+docker-compose.yml
