@@ -1,0 +1,11 @@
+target/
+.mvn/wrapper/maven-wrapper.jar
+.git
+.idea
+.vscode
+*.iml
+.env
+.env.*
+!.env.example
+run.sh
+run.ps1
