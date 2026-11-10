@@ -42,6 +42,31 @@ haya usuarios en la base.
 `deploy/entrypoint.sh` convierte `DATABASE_URL` (`postgresql://...`) al formato
 JDBC que espera Spring Boot.
 
+## Solución de problemas: 403 al iniciar sesión
+
+Si al entrar con usuario y contraseña aparece **“No tienes permisos para realizar
+esta operación”**, normalmente es un `403 Invalid CORS request`, no un problema
+de credenciales.
+
+Render termina TLS en su balanceador y entrega la petición a nginx por HTTP. Sin
+las cabeceras `X-Forwarded-*`, Spring ve `http://...` mientras el navegador envía
+un `Origin: https://...`; por eso considera el login como otro origen y lo
+rechaza. La configuración incluida ya lo resuelve:
+
+- `frontend/nginx.conf` conserva `X-Forwarded-Proto: https` y
+  `X-Forwarded-Host`.
+- `application.properties` activa `server.forward-headers-strategy=framework`.
+- Si `APP_CORS_ORIGINS` llega vacío, el backend usa `RENDER_EXTERNAL_URL`.
+
+Para comprobarlo en los logs de Render, busca `Invalid CORS request`. Si usas un
+dominio propio, define el origen exacto (sin barra final) y sepáralo con comas si
+hay varios:
+
+```
+APP_FRONTEND_URL=https://tudominio.com
+APP_CORS_ORIGINS=https://tudominio.com,https://ier.onrender.com
+```
+
 ## Limitaciones del plan gratuito
 
 - El servicio se suspende tras unos minutos de inactividad y tarda en despertar.

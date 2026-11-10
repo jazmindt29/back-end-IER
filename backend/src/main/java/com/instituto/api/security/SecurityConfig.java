@@ -27,6 +27,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.instituto.api.repository.UsuarioRepository;
@@ -42,6 +43,10 @@ public class SecurityConfig {
 
     @Value("${app.cors.origins}")
     private String corsOrigins;
+
+    // Render expone la URL pública del servicio en esta variable.
+    @Value("${RENDER_EXTERNAL_URL:}")
+    private String renderExternalUrl;
 
    
     @Bean
@@ -116,7 +121,18 @@ public class SecurityConfig {
      @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.stream(corsOrigins.split(",")).map(String::trim).toList());
+        List<String> origenes = new ArrayList<>(Arrays.stream(corsOrigins.split(","))
+                .map(String::trim)
+                .filter(origen -> !origen.isBlank())
+                .toList());
+        // Si APP_CORS_ORIGINS llega vacío, usar la URL pública que inyecta Render.
+        if (origenes.isEmpty() && !renderExternalUrl.isBlank()) {
+            origenes.add(renderExternalUrl.trim());
+        }
+        if (origenes.isEmpty()) {
+            origenes.add("http://localhost:4200");
+        }
+        config.setAllowedOrigins(origenes);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         
         // Cambio de seguridad: Especificar cabeceras explícitas en lugar de "*"
