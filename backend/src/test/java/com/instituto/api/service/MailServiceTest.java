@@ -10,7 +10,8 @@ import static org.mockito.Mockito.*;
 
 class MailServiceTest {
     private final JavaMailSender sender = mock(JavaMailSender.class);
-    private final MailService mail = new MailService(sender);
+    private final BrevoClient brevo = mock(BrevoClient.class);
+    private final MailService mail = new MailService(sender, brevo);
 
     @Test void sinSmtpNoIntentaEnviarYReportaFallo() {
         ReflectionTestUtils.setField(mail, "frontendUrl", "http://localhost:4200");
@@ -39,5 +40,29 @@ class MailServiceTest {
         var message = org.mockito.ArgumentCaptor.forClass(SimpleMailMessage.class);
         verify(sender).send(message.capture());
         assertThat(message.getValue().getText()).contains("http://localhost:4200/configurar-cuenta?token=token-test");
+    }
+
+    @Test void usaBrevoCuandoEstaConfigurado() {
+        ReflectionTestUtils.setField(mail, "frontendUrl", "https://ier.example.org");
+        when(brevo.configurado()).thenReturn(true);
+        when(brevo.enviar(anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+
+        assertThat(mail.enviarInvitacion("test@example.invalid", "Prueba", "token-test")).isTrue();
+
+        verify(brevo).enviar(eq("test@example.invalid"), eq("Prueba"), anyString(),
+                argThat(cuerpo -> cuerpo.contains("https://ier.example.org/configurar-cuenta?token=token-test")));
+        verifyNoInteractions(sender);
+    }
+
+    @Test void usaLaUrlPublicaDeRenderSiFaltaAppFrontendUrl() {
+        ReflectionTestUtils.setField(mail, "frontendUrl", "");
+        ReflectionTestUtils.setField(mail, "renderExternalUrl", "https://ier.onrender.com");
+        when(brevo.configurado()).thenReturn(true);
+        when(brevo.enviar(anyString(), anyString(), anyString(), anyString())).thenReturn(true);
+
+        assertThat(mail.enviarInvitacion("test@example.invalid", "Prueba", "token-test")).isTrue();
+
+        verify(brevo).enviar(eq("test@example.invalid"), eq("Prueba"), anyString(),
+                argThat(cuerpo -> cuerpo.contains("https://ier.onrender.com/configurar-cuenta?token=token-test")));
     }
 }

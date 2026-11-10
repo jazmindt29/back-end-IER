@@ -62,3 +62,16 @@ services:
           name: ier
           type: web
           envVarKey: RENDER_EXTERNAL_URL
+
+      # Correo por la API HTTPS de Brevo. Render free bloquea SMTP (25/465/587),
+      # así que esta es la vía que funciona sin cambiar de plan.
+      # Verificar el remitente en Brevo antes de usar la API key.
+      - key: BREVO_API_KEY
+        sync: false
+      - key: APP_MAIL_FROM
+        sync: false
+      - key: APP_MAIL_FROM_NAME
+        value: IER
+      # Buzón que recibe los mensajes del formulario de contacto (opcional).
+      - key: APP_MAIL_CONTACTO
+        sync: false

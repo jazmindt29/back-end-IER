@@ -44,7 +44,7 @@ public class AuthController {
         boolean enviado = mail.enviarInvitacion(invitacion.email(), invitacion.nombre(), invitacion.token());
         String mensaje = enviado
                 ? "Invitación enviada. El enlace tiene una vigencia de 48 horas."
-                : "Invitación guardada, pero el correo no pudo enviarse. Revisa SMTP y usa Reenviar invitación.";
+                : "Invitación guardada, pero el correo no pudo enviarse. Revisa la configuración de correo y usa Reenviar invitación.";
         return new ResultadoInvitacion(mensaje, enviado, invitacion.venceEn());
     }
 

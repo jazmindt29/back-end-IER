@@ -18,10 +18,12 @@ nginx atiende el puerto público `8080` y reenvía `/api` a Spring Boot en
    - el servicio web `ier`;
    - la base `ier-db`;
    - la variable `APP_BOOTSTRAP_ADMIN_PASSWORD`, que debes escribir
-     (mínimo 12 caracteres).
+     (mínimo 12 caracteres);
+   - las variables de correo (`BREVO_API_KEY`, `APP_MAIL_FROM`,
+     `APP_MAIL_CONTACTO`), que se explican más abajo.
 4. Aplicar el Blueprint. Render construye la imagen y despliega.
-5. Abrir la URL `https://ier.onrender.com` e iniciar sesión con el usuario
-   `admin` y la contraseña elegida.
+5. Abrir la URL que muestra Render e iniciar sesión con el usuario `admin` y la
+   contraseña elegida.
 
 En el primer arranque, Flyway crea el esquema y el perfil `bootstrap` crea el
 administrador. Cuando ya exista, puedes cambiar `SPRING_PROFILES_ACTIVE` a
@@ -38,9 +40,50 @@ haya usuarios en la base.
 | `IER_DB_USERNAME` / `IER_DB_PASSWORD` | Las inyecta Render desde `ier-db` |
 | `JWT_SECRET` | Generado por Render |
 | `APP_FRONTEND_URL` / `APP_CORS_ORIGINS` | URL pública del servicio |
+| `BREVO_API_KEY` | API key de Brevo para enviar correos por HTTPS |
+| `APP_MAIL_FROM` | Correo remitente verificado en Brevo |
+| `APP_MAIL_FROM_NAME` | Nombre visible del remitente (`IER`) |
+| `APP_MAIL_CONTACTO` | Buzón que recibe el formulario de contacto (opcional) |
 
 `deploy/entrypoint.sh` convierte `DATABASE_URL` (`postgresql://...`) al formato
 JDBC que espera Spring Boot.
+
+## Correo de invitaciones con Brevo
+
+Render **bloquea los puertos SMTP `25`, `465` y `587` en el plan gratuito**, por
+eso Gmail SMTP no funciona ahí. La aplicación envía por la API HTTPS de Brevo
+(puerto 443), que sí está permitida. SMTP queda como respaldo para desarrollo
+local o para un plan pago de Render.
+
+### Configurar Brevo
+
+1. Crear una cuenta gratuita en [brevo.com](https://www.brevo.com/).
+2. Verificar el remitente en **Senders, Domains & IPs → Senders → Add a sender**.
+   Brevo envía un correo de confirmación; hay que abrirlo y confirmar.
+3. Crear una API key en **SMTP & API → API keys → Create a new API key**.
+   Copiarla en el momento, porque no se vuelve a mostrar.
+4. En Render, abrir el servicio → **Environment** y agregar:
+
+   ```
+   BREVO_API_KEY=tu-api-key
+   APP_MAIL_FROM=el-correo-que-verificaste@ejemplo.com
+   APP_MAIL_FROM_NAME=IER
+   APP_MAIL_CONTACTO=correo-del-departamento@ejemplo.com
+   ```
+
+   `APP_MAIL_CONTACTO` es opcional; si se omite, los mensajes del formulario se
+   guardan pero no se notifican. `APP_MAIL_FROM_NAME` ya viene con `IER` en
+   `render.yaml`, así que normalmente no hay que cambiarla.
+
+5. Guardar los cambios. Render redepliega solo. Si se actualizó `render.yaml`,
+   usar **Blueprint → Sync** para que aparezcan las variables nuevas.
+6. Probar una invitación desde el panel. Si falla, revisar los logs de Render:
+   `Brevo rechazó el correo (HTTP 401)` indica API key incorrecta; `HTTP 400`
+   suele indicar que el remitente no está verificado.
+
+El plan gratuito de Brevo permite 300 correos al día. Para producción conviene
+autenticar el dominio en Brevo (SPF/DKIM) y usar un remitente del dominio de la
+institución para mejorar la entregabilidad.
 
 ## Solución de problemas: 403 al iniciar sesión
 
@@ -72,6 +115,9 @@ APP_CORS_ORIGINS=https://tudominio.com,https://ier.onrender.com
 - El servicio se suspende tras unos minutos de inactividad y tarda en despertar.
 - La base PostgreSQL gratuita de Render tiene límite de almacenamiento y caduca
   a los 30 días. Para producción, usar planes pagados.
+- Los servicios gratuitos no pueden enviar tráfico saliente a los puertos SMTP
+  `25`, `465` ni `587`. Por eso el correo usa Brevo por HTTPS; si se pasa a un
+  plan pago, se puede volver a configurar SMTP con Gmail.
 - Un contenedor con dos procesos no escala frontend y backend por separado.
   Si más adelante necesitas escalar, se pueden dividir en dos servicios.
 

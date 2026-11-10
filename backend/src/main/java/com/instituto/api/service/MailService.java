@@ -15,6 +15,7 @@ public class MailService {
     private static final Logger log = LoggerFactory.getLogger(MailService.class);
 
     private final JavaMailSender sender;
+    private final BrevoClient brevo;
 
     @Value("${spring.mail.username}")
     private String remitente;
@@ -22,19 +23,24 @@ public class MailService {
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
+    // Render expone la URL pública del servicio aunque APP_FRONTEND_URL llegue vacío.
+    @Value("${RENDER_EXTERNAL_URL:}")
+    private String renderExternalUrl;
+
     @Value("${app.mail.contacto-destino}")
     private String contactoDestino;
 
-    public MailService(JavaMailSender sender) {
+    public MailService(JavaMailSender sender, BrevoClient brevo) {
         this.sender = sender;
+        this.brevo = brevo;
     }
 
     public boolean enviarInvitacion(String email, String nombre, String token) {
-        if (frontendUrl == null || frontendUrl.isBlank()) {
+        String base = urlPublica();
+        if (base == null) {
             log.warn("APP_FRONTEND_URL no configurado; invitación guardada sin enviar enlace");
             return false;
         }
-        String base = frontendUrl.trim();
         try {
             URI uri = URI.create(base);
             if (uri.getHost() == null || !("http".equalsIgnoreCase(uri.getScheme())
@@ -59,7 +65,7 @@ public class MailService {
 
                 Si no esperabas este correo, ignóralo.
                 """.formatted(nombre, enlace);
-        return enviar(email, "Invitación a la plataforma del IER", cuerpo);
+        return enviar(email, nombre, "Invitación a la plataforma del IER", cuerpo);
     }
 
     public void notificarContacto(Contacto contacto) {
@@ -78,28 +84,46 @@ public class MailService {
                 """.formatted(contacto.getNombre(), contacto.getEmail(),
                 contacto.getAsunto() == null ? "(sin asunto)" : contacto.getAsunto(),
                 contacto.getMensaje());
-        enviar(contactoDestino, "Contacto IER: " + (contacto.getAsunto() == null ? "nuevo mensaje" : contacto.getAsunto()), cuerpo);
+        enviar(contactoDestino, null,
+                "Contacto IER: " + (contacto.getAsunto() == null ? "nuevo mensaje" : contacto.getAsunto()), cuerpo);
+    }
+
+    private String urlPublica() {
+        if (frontendUrl != null && !frontendUrl.isBlank()) {
+            return frontendUrl.trim();
+        }
+        if (renderExternalUrl != null && !renderExternalUrl.isBlank()) {
+            return renderExternalUrl.trim();
+        }
+        return null;
     }
 
     // No registrar cuerpos, destinatarios ni tokens; el llamador informa el resultado.
-    private boolean enviar(String para, String asunto, String cuerpo) {
+    private boolean enviar(String para, String nombre, String asunto, String cuerpo) {
+        // Brevo por HTTPS funciona en el plan gratuito de Render.
+        if (brevo.configurado()) {
+            boolean enviado = brevo.enviar(para, nombre, asunto, cuerpo);
+            if (enviado) {
+                log.info("Correo enviado correctamente por Brevo");
+            }
+            return enviado;
+        }
+
         if (remitente == null || remitente.isBlank()) {
-            log.warn("SMTP sin configurar; correo no enviado");
+            log.warn("Ni Brevo ni SMTP están configurados; correo no enviado");
             return false;
         }
         try {
             SimpleMailMessage msg = new SimpleMailMessage();
-            if (remitente != null && !remitente.isBlank()) {
-                msg.setFrom(remitente);
-            }
+            msg.setFrom(remitente);
             msg.setTo(para);
             msg.setSubject(asunto);
             msg.setText(cuerpo);
             sender.send(msg);
-            log.info("Correo enviado correctamente");
+            log.info("Correo enviado correctamente por SMTP");
             return true;
         } catch (Exception e) {
-            log.warn("No se pudo enviar el correo ({})", e.getClass().getSimpleName());
+            log.warn("No se pudo enviar el correo por SMTP ({})", e.getClass().getSimpleName());
             return false;
         }
     }
